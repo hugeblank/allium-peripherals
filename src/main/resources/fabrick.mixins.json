@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "dev.elexi.hugeblank.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ChatMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

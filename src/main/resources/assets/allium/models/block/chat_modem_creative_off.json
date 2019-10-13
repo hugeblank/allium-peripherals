@@ -1,0 +1,7 @@
+{
+    "parent": "allium:block/modem",
+    "textures": {
+        "front": "allium:block/chat_modem_creative_face",
+        "back": "allium:block/modem_back"
+    }
+}

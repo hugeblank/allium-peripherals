@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "allium",
+  "version": "${version}",
+
+  "name": "Allium Peripherals",
+  "description": "Just some peripherals for CC",
+  "authors": [
+    "hugeblank"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/allium/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.elexi.hugeblank.Allium"
+    ]
+  },
+  "mixins": [
+    "fabrick.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}
