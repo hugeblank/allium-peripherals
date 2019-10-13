@@ -1,12 +1,12 @@
 package dev.elexi.hugeblank.peripherals.chatmodem;
 
-import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
-import dan200.computercraft.shared.util.NamedBlockEntityType;
 import dan200.computercraft.shared.util.WaterloggableBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityContext;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
@@ -20,21 +20,47 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.ViewableWorld;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BlockChatModem extends BlockGeneric implements WaterloggableBlock {
+public class BlockChatModem extends Block implements WaterloggableBlock, BlockEntityProvider {
 
     public static final DirectionProperty FACING = Properties.FACING;
     public static final BooleanProperty ON = BooleanProperty.of( "on" );
+    private boolean creative;
 
-    public BlockChatModem(Settings settings, NamedBlockEntityType<? extends TileGeneric> type) {
-        super(settings, type);
+    public BlockChatModem(Settings settings, boolean creative) {
+        super(settings);
         setDefaultState( getStateFactory().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( ON, false )
             .with( WATERLOGGED, false ) );
+        this.creative = creative;
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockView view) {
+        BlockEntityType<ChatModemBlockEntity> use;
+        if (this.creative) {
+            use = ChatModemBlockEntity.normalChatModem;
+        } else {
+            use = ChatModemBlockEntity.creativeChatModem;
+        }
+        return new ChatModemBlockEntity(use, this.creative);
+    }
+
+    @Override
+    @Deprecated
+    public final void onBlockRemoved(@Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
+    {
+        if( block.getBlock() == replace.getBlock() ) return;
+
+        BlockEntity tile = world.getBlockEntity( pos );
+        super.onBlockRemoved( block, world, pos, replace, bool );
+        world.removeBlockEntity( pos );
+        if( tile instanceof ChatModemBlockEntity) ((ChatModemBlockEntity) tile).destroy();
     }
 
     @Override

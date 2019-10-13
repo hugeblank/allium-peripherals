@@ -2,38 +2,34 @@ package dev.elexi.hugeblank.peripherals.chatmodem;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
-import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.util.NamedBlockEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import dev.elexi.hugeblank.Allium;
+import dev.elexi.hugeblank.Registry;
+import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
+import dev.elexi.hugeblank.peripherals.chatmodem.BlockChatModem;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileChatModem extends TileGeneric implements IPeripheralTile {
+public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile {
 
-    public static final NamedBlockEntityType<TileChatModem> FACTORY_NORMAL = NamedBlockEntityType.create(
-        new Identifier( Allium.MOD_ID, "chat_modem" ),
-        f -> new TileChatModem( f , false)
-    );
-    public static final NamedBlockEntityType<TileChatModem> FACTORY_CREATIVE = NamedBlockEntityType.create(
-        new Identifier( Allium.MOD_ID, "chat_modem_creative" ),
-        f -> new TileChatModem( f , true)
-    );
+    public static BlockEntityType<ChatModemBlockEntity> normalChatModem = BlockEntityType.Builder.create(Registry.normalSupplier, Allium.Blocks.chatModem).build(null);
+    public static BlockEntityType<ChatModemBlockEntity> creativeChatModem = BlockEntityType.Builder.create(Registry.creativeSupplier, Allium.Blocks.chatModemCreative).build(null);
+
 
     private static class Peripheral extends ChatPeripheral {
-        private final TileChatModem entity;
+        private final ChatModemBlockEntity entity;
 
-        Peripheral(TileChatModem entity)
+        Peripheral(ChatModemBlockEntity entity)
         {
-            super( new ChatModemState( () -> TickScheduler.schedule( entity ) ), entity.creative );;
+            super( new ChatModemState(), entity.creative );;
             this.entity = entity;
         }
 
@@ -69,7 +65,7 @@ public class TileChatModem extends TileGeneric implements IPeripheralTile {
     private boolean destroyed = false;
     private Peripheral modem;
 
-    public TileChatModem(BlockEntityType<? extends TileChatModem> type, boolean creative ) {
+    public ChatModemBlockEntity(BlockEntityType<? extends ChatModemBlockEntity> type, boolean creative ) {
         super( type );
         this.creative = creative;
         modem = new Peripheral( this );
@@ -79,10 +75,8 @@ public class TileChatModem extends TileGeneric implements IPeripheralTile {
     public void validate()
     {
         super.validate();
-        TickScheduler.schedule( this );
     }
 
-    @Override
     public void destroy()
     {
         if( !destroyed )
@@ -99,6 +93,7 @@ public class TileChatModem extends TileGeneric implements IPeripheralTile {
         if( world != null )
         {
             updateDirection();
+            if( modem.getModemState().pollChanged() ) updateBlockState();
         }
         else
         {
@@ -112,14 +107,6 @@ public class TileChatModem extends TileGeneric implements IPeripheralTile {
         super.resetBlock();
         hasModemDirection = false;
         world.getBlockTickScheduler().schedule( getPos(), getCachedState().getBlock(), 0 );
-    }
-
-    @Override
-    public void blockTick()
-    {
-        updateDirection();
-
-        if( modem.getModemState().pollChanged() ) updateBlockState();
     }
 
     private void updateDirection()

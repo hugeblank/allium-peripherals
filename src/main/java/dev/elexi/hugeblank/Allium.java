@@ -2,6 +2,8 @@ package dev.elexi.hugeblank;
 
 import dev.elexi.hugeblank.peripherals.chatmodem.BlockChatModem;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.registry.MutableRegistry;
 
@@ -9,8 +11,13 @@ public class Allium implements ModInitializer {
 
     public static final String MOD_ID = "allium";
     public static final class Blocks {
-        public static BlockChatModem chatModem;
-        public static BlockChatModem chatModemCreative;
+        public static BlockChatModem chatModem = new BlockChatModem(
+                FabricBlockSettings.of(Material.STONE).hardness(2).build(),
+                false);
+
+        public static BlockChatModem chatModemCreative = new BlockChatModem(
+                FabricBlockSettings.of(Material.STONE).hardness(2).build(),
+                true);
 
         public Blocks() {}
     }

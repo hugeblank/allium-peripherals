@@ -7,7 +7,7 @@
 package dev.elexi.hugeblank;
 
 import dev.elexi.hugeblank.peripherals.chatmodem.BlockChatModem;
-import dev.elexi.hugeblank.peripherals.chatmodem.TileChatModem;
+import dev.elexi.hugeblank.peripherals.chatmodem.ChatModemBlockEntity;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.minecraft.block.Block;
@@ -17,8 +17,14 @@ import net.minecraft.item.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.MutableRegistry;
 
+import java.util.function.Supplier;
+
 public final class Registry
 {
+
+    public static Supplier<ChatModemBlockEntity> normalSupplier;
+    public static Supplier<ChatModemBlockEntity> creativeSupplier;
+
     private static final ItemGroup mainItemGroup = FabricItemGroupBuilder
             .create( new Identifier( Allium.MOD_ID, "main" ) )
             .icon( () -> new ItemStack( Allium.Blocks.chatModemCreative ) )
@@ -30,24 +36,21 @@ public final class Registry
 
     public static void registerBlocks( MutableRegistry<Block> registry ) {
 
-        Allium.Blocks.chatModem = new BlockChatModem(
-                FabricBlockSettings.of(Material.STONE).hardness(2).build(),
-                TileChatModem.FACTORY_NORMAL
-        );
-
-        Allium.Blocks.chatModemCreative = new BlockChatModem(
-                FabricBlockSettings.of(Material.STONE).hardness(2).build(),
-                TileChatModem.FACTORY_CREATIVE
-        );
-
         registry.add(new Identifier(Allium.MOD_ID, "chat_modem"), Allium.Blocks.chatModem);
         registry.add(new Identifier(Allium.MOD_ID, "chat_modem_creative"), Allium.Blocks.chatModemCreative);
     }
 
     public static void registerTileEntities( MutableRegistry<BlockEntityType<?>> registry )
     {
-        registry.add( TileChatModem.FACTORY_NORMAL.getId(), TileChatModem.FACTORY_NORMAL );
-        registry.add( TileChatModem.FACTORY_CREATIVE.getId(), TileChatModem.FACTORY_CREATIVE );
+        normalSupplier = () -> {
+            ChatModemBlockEntity be = new ChatModemBlockEntity(ChatModemBlockEntity.normalChatModem, false);
+            return be;
+        };
+        creativeSupplier = () -> {
+            ChatModemBlockEntity be = new ChatModemBlockEntity(ChatModemBlockEntity.creativeChatModem, true);
+            return be;
+        };
+
     }
 
     private static void registerItemBlock( MutableRegistry<Item> registry, BlockItem item )
@@ -62,7 +65,7 @@ public final class Registry
 
     public static void registerItems( MutableRegistry<Item> registry )
     {
-        registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModem, defaultItem() ) );
-        registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModemCreative, defaultItem() ) );
+        //registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModem, defaultItem() ) );
+        //registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModemCreative, defaultItem() ) );
     }
 }

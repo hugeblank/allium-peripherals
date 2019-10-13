@@ -6,17 +6,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatModemState {
 
-    private final Runnable onChanged;
-    private AtomicBoolean changed;
-    private ArrayList<String> captures;
+    private ArrayList<String> captures = new ArrayList<>();
+    private boolean changed;
     private boolean open;
 
     public ChatModemState() {
-        this.onChanged = null;
-    }
-
-    public ChatModemState(Runnable onChanged) {
-        this.onChanged = onChanged;
+        this.changed = false;
     }
 
     public boolean isOpen() { return open;}
@@ -24,12 +19,16 @@ public class ChatModemState {
     private void setOpen( boolean state) {
         if(state == this.open) return;
         this.open = state;
-        if( !changed.getAndSet( true ) && onChanged != null ) onChanged.run();
+        if( !changed) changed = true;
     }
 
     public boolean pollChanged()
     {
-        return changed.getAndSet( false );
+        if (changed) {
+            changed = false;
+            return true;
+        }
+        return false;
     }
 
     public void capture(String capture) {
@@ -44,6 +43,7 @@ public class ChatModemState {
                 captures.add(capture);
             }
         }
+        setOpen(true);
     }
 
     public String[] getCaptures() {
@@ -69,6 +69,7 @@ public class ChatModemState {
                     }
                 }
             }
+            if (captures.isEmpty()) setOpen(false);
         }
     }
 }
