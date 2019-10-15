@@ -2,34 +2,36 @@ package dev.elexi.hugeblank.peripherals.chatmodem;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
-import dan200.computercraft.shared.util.TickScheduler;
 import dev.elexi.hugeblank.Allium;
-import dev.elexi.hugeblank.Registry;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import dev.elexi.hugeblank.AlliumRegistry;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import dev.elexi.hugeblank.peripherals.chatmodem.BlockChatModem;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile {
 
-    public static BlockEntityType<ChatModemBlockEntity> normalChatModem = BlockEntityType.Builder.create(Registry.normalSupplier, Allium.Blocks.chatModem).build(null);
-    public static BlockEntityType<ChatModemBlockEntity> creativeChatModem = BlockEntityType.Builder.create(Registry.creativeSupplier, Allium.Blocks.chatModemCreative).build(null);
+    public static BlockEntityType<ChatModemBlockEntity> normalChatModem = BlockEntityType.Builder.create(AlliumRegistry.normalSupplier, Allium.Blocks.chatModem).build(null);
+    public static BlockEntityType<ChatModemBlockEntity> creativeChatModem = BlockEntityType.Builder.create(AlliumRegistry.creativeSupplier, Allium.Blocks.chatModemCreative).build(null);
 
 
     private static class Peripheral extends ChatPeripheral {
         private final ChatModemBlockEntity entity;
 
-        Peripheral(ChatModemBlockEntity entity)
+        Peripheral(ChatModemBlockEntity entity, boolean creative)
         {
-            super( new ChatModemState(), entity.creative );;
+            super( new ChatModemState(entity), creative );;
             this.entity = entity;
         }
 
@@ -59,16 +61,43 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
         }
     }
 
-    private final boolean creative;
-    private boolean hasModemDirection = false;
     private Direction modemDirection = Direction.DOWN;
+    private boolean hasModemDirection = false;
     private boolean destroyed = false;
     private Peripheral modem;
 
     public ChatModemBlockEntity(BlockEntityType<? extends ChatModemBlockEntity> type, boolean creative ) {
         super( type );
-        this.creative = creative;
-        modem = new Peripheral( this );
+        modem = new Peripheral( this, creative);
+    }
+
+    public void onBlockInteraction(PlayerEntity player) {
+        modem.setPlayer(player);
+    }
+
+    @Override
+    public CompoundTag toTag(CompoundTag tag) {
+        super.toTag(tag);
+        if (modem.creative) return tag;
+        String[] playerInfo = modem.getBoundPlayer();
+        if (modem.getModemState().isBound()) {
+            ListTag boundPlayer = new ListTag();
+            boundPlayer.addTag(0, new StringTag(playerInfo[0]));
+            boundPlayer.addTag(1, new StringTag(playerInfo[1]));
+
+            tag.put("boundPlayer", boundPlayer);
+        }
+        return tag;
+    }
+
+    @Override
+    public void fromTag(CompoundTag tag) {
+        super.fromTag(tag);
+        if (modem.creative) return;
+        if (tag.getType("boundPlayer") != 0 && !modem.getModemState().isBound()) {
+            ListTag boundPlayer = tag.getList("boundPlayer", 8);
+            modem.setBoundPlayer(boundPlayer.getString(0), boundPlayer.getString(1));
+        }
     }
 
     @Override
@@ -93,7 +122,7 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
         if( world != null )
         {
             updateDirection();
-            if( modem.getModemState().pollChanged() ) updateBlockState();
+            updateBlockState();
         }
         else
         {
@@ -120,10 +149,14 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     private void updateBlockState()
     {
         boolean on = modem.getModemState().isOpen();
+        boolean paired = modem.getModemState().isBound();
         BlockState state = getCachedState();
         if( state.get( BlockChatModem.ON ) != on )
         {
             getWorld().setBlockState( getPos(), state.with( BlockChatModem.ON, on ) );
+        }
+        if ( state.get( BlockChatModem.PAIRED ) != paired) {
+            getWorld().setBlockState(getPos(), state.with(BlockChatModem.PAIRED, paired));
         }
     }
 

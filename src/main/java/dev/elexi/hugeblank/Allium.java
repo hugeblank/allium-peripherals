@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.registry.MutableRegistry;
+import net.minecraft.util.registry.Registry;
 
 public class Allium implements ModInitializer {
 
@@ -25,9 +26,9 @@ public class Allium implements ModInitializer {
     @Override
     public void onInitialize()
     {
-        Registry.registerBlocks( net.minecraft.util.registry.Registry.BLOCK );
-        Registry.registerTileEntities( (MutableRegistry<BlockEntityType<?>>) net.minecraft.util.registry.Registry.BLOCK_ENTITY );
-        Registry.registerItems( net.minecraft.util.registry.Registry.ITEM );
+        AlliumRegistry.registerBlocks();
+        AlliumRegistry.registerTileEntities();
+        AlliumRegistry.registerItems( Registry.ITEM );
         //registerRecipes( (MutableRegistry<RecipeSerializer<?>>) net.minecraft.util.registry.Registry.RECIPE_SERIALIZER );
     }
 }

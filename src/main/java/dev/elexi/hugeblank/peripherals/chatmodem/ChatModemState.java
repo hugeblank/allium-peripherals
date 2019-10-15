@@ -1,17 +1,21 @@
 package dev.elexi.hugeblank.peripherals.chatmodem;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.LiteralText;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.UUID;
 
 
 public class ChatModemState {
 
     private ArrayList<String> captures = new ArrayList<>();
-    private boolean changed;
+    private ChatModemBlockEntity blockEntity;
     private boolean open;
+    private boolean bound;
 
-    public ChatModemState() {
-        this.changed = false;
+
+    public ChatModemState(ChatModemBlockEntity blockEntity) {
+        this.blockEntity = blockEntity;
     }
 
     public boolean isOpen() { return open;}
@@ -19,16 +23,17 @@ public class ChatModemState {
     private void setOpen( boolean state) {
         if(state == this.open) return;
         this.open = state;
-        if( !changed) changed = true;
+        blockEntity.markDirty();
     }
 
-    public boolean pollChanged()
-    {
-        if (changed) {
-            changed = false;
-            return true;
-        }
-        return false;
+    public synchronized void setBound(boolean state) {
+        if(state == this.bound) return;
+        this.bound = state;
+        blockEntity.markDirty();
+    }
+
+    public boolean isBound() {
+        return this.bound;
     }
 
     public void capture(String capture) {
@@ -56,20 +61,36 @@ public class ChatModemState {
         }
     }
 
-    public void uncapture(String capture) {
+    public boolean uncapture(String capture) {
+        boolean out = false;
         synchronized (captures) {
-            if (capture != null) {
+            System.out.println("Parameter: " + capture);
+            if (capture == null) {
+                System.out.println("Clearing all");
                 for (int i = 0; i < captures.size(); i++) {
                     captures.remove(i);
+                    out = true;
                 }
             } else {
+                System.out.println("Clearing out one");
                 for (int i = 0; i < captures.size(); i++) {
-                    if (captures.get(i).equals(capture)) {
+                    if (capture.equals(captures.get(i))) {
                         captures.remove(i);
                     }
+                    out = true;
                 }
             }
             if (captures.isEmpty()) setOpen(false);
+            return out;
         }
+    }
+
+    public boolean say(String uuid, String message) {
+        PlayerEntity player = blockEntity.getWorld().getPlayerByUuid( UUID.fromString(uuid) );
+        if (player != null) {
+            player.addChatMessage(new LiteralText(message), false);
+            //player.sendMessage(new LiteralText(message));
+        }
+        return false;
     }
 }

@@ -1,4 +1,5 @@
 {
   "block.allium.chat_modem": "Chat Modem",
-  "block.allium.chat_modem_creative": "CreativeChat Modem"
+  "block.allium.chat_modem_creative": "Creative Chat Modem",
+  "itemGroup.allium.main": "Allium Peripherals"
 }

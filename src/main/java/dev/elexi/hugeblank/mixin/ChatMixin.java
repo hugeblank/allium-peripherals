@@ -24,7 +24,7 @@ public abstract class ChatMixin {
         boolean cancel = false;
         for (int i = 0; i < IChatCatcher.catcher.size(); i++) {
             ChatPeripheral modem = IChatCatcher.catcher.get(i);
-            if ( player.getEntityWorld().equals(modem.getWorld()) && player.getPosVector().distanceTo(modem.getPosition()) > IChatCatcher.CHAT_MODEM_MAX_RANGE || modem.creative) {
+            if (player.getUuidAsString() == modem.getBoundPlayer()[1] || modem.creative) {
                 cancel = modem.handleChatEvents(message, player);
             }
         }
