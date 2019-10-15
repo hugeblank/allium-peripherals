@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "allium",
-  "version": "0.1.0+",
+  "version": "${version}",
 
   "name": "Allium Peripherals",
   "description": "Just some peripherals for CC",
@@ -9,7 +9,7 @@
     "hugeblank"
   ],
   "contact": {
-    "homepage": "https://github.com/hugeblank",
+    "homepage": "https://hugeblank.elexi.dev",
     "sources": "https://github.com/hugeblank/allium-peripherals"
   },
 
