@@ -9,7 +9,6 @@ import dev.elexi.hugeblank.util.LuaPattern;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
-
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
