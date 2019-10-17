@@ -1,39 +1,75 @@
 package dev.elexi.hugeblank.peripherals.chatmodem;
 
+import dan200.computercraft.api.peripheral.IComputerAccess;
+import dev.elexi.hugeblank.util.LuaPattern;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 
 
-public class ChatModemState {
+public class ChatModemState implements IChatCatcher {
 
     private ArrayList<String> captures = new ArrayList<>();
+    private Set<IComputerAccess> m_computers;
     private ChatModemBlockEntity blockEntity;
     private boolean open;
-    private boolean bound;
+    private String boundid;
+    public final boolean creative;
 
 
-    public ChatModemState(ChatModemBlockEntity blockEntity) {
+    public ChatModemState(ChatModemBlockEntity blockEntity, boolean creative) {
+
         this.blockEntity = blockEntity;
+        this.creative = creative;
     }
 
     public boolean isOpen() { return open;}
 
     private void setOpen( boolean state) {
-        if(state == this.open) return;
+        if (state == this.open) return;
+        if(state == true) {
+            catcher.add(this);
+        } else {
+            catcher.remove(this);
+        }
         this.open = state;
         blockEntity.markDirty();
     }
 
-    public synchronized void setBound(boolean state) {
-        if(state == this.bound) return;
-        this.bound = state;
+    public synchronized void setBound(String uuid) {
+        this.boundid = uuid;
         blockEntity.markDirty();
+    }
+    public String getBound() {
+        return boundid;
+    }
+
+    public void setComputers(Set<IComputerAccess> m_computers) {
+        this.m_computers = m_computers;
     }
 
     public boolean isBound() {
-        return this.bound;
+        return this.boundid != null;
+    }
+
+    public boolean handleChatEvents(String message, ServerPlayerEntity player) {
+        boolean out = false;
+        String username = player.getEntityName();
+        String id = player.getUuid().toString();
+        String[] captures = getCaptures();
+        for (IComputerAccess computer : m_computers) {
+            computer.queueEvent("chat_message", new Object[]{username, message, id});
+            for(int i = 0; i < captures.length; i++) {
+                if (LuaPattern.matches(message, captures[i])) {
+                    computer.queueEvent("chat_capture", new Object[]{message, captures[i], username, id});
+                    out = true;
+                }
+            }
+        }
+        return out;
     }
 
     public void capture(String capture) {
@@ -64,15 +100,12 @@ public class ChatModemState {
     public boolean uncapture(String capture) {
         boolean out = false;
         synchronized (captures) {
-            System.out.println("Parameter: " + capture);
             if (capture == null) {
-                System.out.println("Clearing all");
                 for (int i = 0; i < captures.size(); i++) {
                     captures.remove(i);
                     out = true;
                 }
             } else {
-                System.out.println("Clearing out one");
                 for (int i = 0; i < captures.size(); i++) {
                     if (capture.equals(captures.get(i))) {
                         captures.remove(i);
@@ -85,8 +118,8 @@ public class ChatModemState {
         }
     }
 
-    public boolean say(String uuid, String message) {
-        PlayerEntity player = blockEntity.getWorld().getPlayerByUuid( UUID.fromString(uuid) );
+    public boolean say(String message) {
+        PlayerEntity player = blockEntity.getWorld().getPlayerByUuid( UUID.fromString(boundid) );
         if (player != null) {
             player.addChatMessage(new LiteralText(message), false);
             //player.sendMessage(new LiteralText(message));

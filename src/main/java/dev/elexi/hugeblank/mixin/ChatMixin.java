@@ -1,6 +1,6 @@
 package dev.elexi.hugeblank.mixin;
 
-import dev.elexi.hugeblank.peripherals.chatmodem.ChatPeripheral;
+import dev.elexi.hugeblank.peripherals.chatmodem.ChatModemState;
 import dev.elexi.hugeblank.peripherals.chatmodem.IChatCatcher;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -22,12 +22,15 @@ public abstract class ChatMixin {
     @Inject(method = "onChatMessage", at = @At(value = "INVOKE", target = "net/minecraft/server/PlayerManager.broadcastChatMessage(Lnet/minecraft/text/Text;Z)V"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     protected void onChatMessage(ChatMessageC2SPacket chatMessageC2SPacket_1, CallbackInfo ci, String message, Text text_1) {
         boolean cancel = false;
-        for (int i = 0; i < IChatCatcher.catcher.size(); i++) {
-            ChatPeripheral modem = IChatCatcher.catcher.get(i);
-            if (player.getUuidAsString() == modem.getBoundPlayer()[1] || modem.creative) {
-                cancel = modem.handleChatEvents(message, player);
+        if (!player.getEntityWorld().isClient) {
+            for (int i = 0; i < IChatCatcher.catcher.size(); i++) {
+                ChatModemState modem = IChatCatcher.catcher.get(i);
+                if (player.getUuidAsString().equals(modem.getBound()) || modem.creative) {
+                    cancel = modem.handleChatEvents(message, player);
+                    System.out.println("World: " + (player.getEntityWorld().isClient() ? "client" : "server") + ", cancelled: " + (cancel ? "yes" : "no"));
+                }
             }
+            if (cancel) ci.cancel();
         }
-        if(cancel) ci.cancel();
     }
 }

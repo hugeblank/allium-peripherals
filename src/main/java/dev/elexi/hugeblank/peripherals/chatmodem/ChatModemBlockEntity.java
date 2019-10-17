@@ -11,12 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -31,27 +26,12 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
 
         Peripheral(ChatModemBlockEntity entity, boolean creative)
         {
-            super( new ChatModemState(entity), creative );;
+            super( new ChatModemState(entity, creative) );
             this.entity = entity;
-        }
-
-        @Nonnull
-        @Override
-        public World getWorld()
-        {
-            return entity.getWorld();
         }
 
         public void destroy() {
             this.getModemState().uncapture(null);
-        }
-
-        @Nonnull
-        @Override
-        public Vec3d getPosition()
-        {
-            BlockPos pos = entity.getPos().offset( entity.modemDirection );
-            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override
@@ -118,6 +98,7 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     @Override
     public void markDirty()
     {
+        if (destroyed) return;
         super.markDirty();
         if( world != null )
         {
