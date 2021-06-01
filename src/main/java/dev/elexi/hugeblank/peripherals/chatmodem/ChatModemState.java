@@ -5,6 +5,7 @@ import dev.elexi.hugeblank.util.LuaPattern;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -29,10 +30,9 @@ public class ChatModemState implements IChatCatcher {
     public boolean isOpen() { return open;}
 
     private void setOpen( boolean state) {
-        if (state == this.open) return;
-        if(state == true) {
+        if(state && !catcher.contains(this)) {
             catcher.add(this);
-        } else {
+        } else if (!state){
             catcher.remove(this);
         }
         this.open = state;
@@ -41,6 +41,11 @@ public class ChatModemState implements IChatCatcher {
 
     public synchronized void setBound(String uuid) {
         this.boundid = uuid;
+        if(uuid != null) {
+            catcher.add(this);
+        } else {
+            catcher.remove(this);
+        }
         blockEntity.markDirty();
     }
     public String getBound() {
@@ -61,10 +66,10 @@ public class ChatModemState implements IChatCatcher {
         String id = player.getUuid().toString();
         String[] captures = getCaptures();
         for (IComputerAccess computer : m_computers) {
-            computer.queueEvent("chat_message", new Object[]{username, message, id});
-            for(int i = 0; i < captures.length; i++) {
-                if (LuaPattern.matches(message, captures[i])) {
-                    computer.queueEvent("chat_capture", new Object[]{message, captures[i], username, id});
+            computer.queueEvent("chat_message", username, message, id);
+            for (String capture : captures) {
+                if (LuaPattern.matches(message, capture)) {
+                    computer.queueEvent("chat_capture", message, capture, username, id);
                     out = true;
                 }
             }
@@ -75,9 +80,10 @@ public class ChatModemState implements IChatCatcher {
     public void capture(String capture) {
         synchronized (captures) {
             boolean exists = false;
-            for (int i = 0; i < captures.size(); i++) {
-                if (captures.get(i).equals(capture)) {
+            for (String s : captures) {
+                if (s.equals(capture)) {
                     exists = true;
+                    break;
                 }
             }
             if (!exists) {
@@ -103,8 +109,8 @@ public class ChatModemState implements IChatCatcher {
             if (capture == null) {
                 for (int i = 0; i < captures.size(); i++) {
                     captures.remove(i);
-                    out = true;
                 }
+                out = true;
             } else {
                 for (int i = 0; i < captures.size(); i++) {
                     if (capture.equals(captures.get(i))) {
@@ -113,17 +119,15 @@ public class ChatModemState implements IChatCatcher {
                     out = true;
                 }
             }
-            if (captures.isEmpty()) setOpen(false);
+            if (captures.isEmpty()) catcher.remove(this);
             return out;
         }
     }
 
-    public boolean say(String message) {
+    public void say(String message) {
         PlayerEntity player = blockEntity.getWorld().getPlayerByUuid( UUID.fromString(boundid) );
         if (player != null) {
-            player.addChatMessage(new LiteralText(message), false);
-            //player.sendMessage(new LiteralText(message));
+            player.sendMessage(new LiteralText(message), false);
         }
-        return false;
     }
 }

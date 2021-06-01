@@ -2,22 +2,22 @@ package dev.elexi.hugeblank;
 
 import dev.elexi.hugeblank.peripherals.chatmodem.BlockChatModem;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Material;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
 
 public class Allium implements ModInitializer {
+    public static final FabricLoader FL_INSTANCE = FabricLoader.getInstance();
 
     public static final String MOD_ID = "allium";
     public static final class Blocks {
         public static BlockChatModem chatModem = new BlockChatModem(
-                FabricBlockSettings.of(Material.STONE).hardness(2).build(),
+                FabricBlockSettings.of(Material.STONE).hardness(2),
                 false);
 
         public static BlockChatModem chatModemCreative = new BlockChatModem(
-                FabricBlockSettings.of(Material.STONE).hardness(2).build(),
+                FabricBlockSettings.of(Material.STONE).hardness(2),
                 true);
 
         public Blocks() {}
@@ -27,8 +27,11 @@ public class Allium implements ModInitializer {
     public void onInitialize()
     {
         AlliumRegistry.registerBlocks();
-        AlliumRegistry.registerTileEntities();
+        AlliumRegistry.registerBlockEntities();
         AlliumRegistry.registerItems( Registry.ITEM );
-        //registerRecipes( (MutableRegistry<RecipeSerializer<?>>) net.minecraft.util.registry.Registry.RECIPE_SERIALIZER );
+    }
+
+    public static void debug(Object o) {
+        if (FL_INSTANCE.isDevelopmentEnvironment()) System.out.println(o);
     }
 }

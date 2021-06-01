@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.util.math.Direction;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -62,8 +63,8 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
         String[] playerInfo = modem.getBoundPlayer();
         if (modem.getModemState().isBound()) {
             ListTag boundPlayer = new ListTag();
-            boundPlayer.addTag(0, new StringTag(playerInfo[0]));
-            boundPlayer.addTag(1, new StringTag(playerInfo[1]));
+            boundPlayer.addTag(0, StringTag.of(playerInfo[0]));
+            boundPlayer.addTag(1, StringTag.of(playerInfo[1]));
 
             tag.put("boundPlayer", boundPlayer);
         }
@@ -71,19 +72,13 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     }
 
     @Override
-    public void fromTag(CompoundTag tag) {
-        super.fromTag(tag);
+    public void fromTag(BlockState state, CompoundTag tag) {
+        super.fromTag(state, tag);
         if (modem.creative) return;
         if (tag.getType("boundPlayer") != 0 && !modem.getModemState().isBound()) {
             ListTag boundPlayer = tag.getList("boundPlayer", 8);
             modem.setBoundPlayer(boundPlayer.getString(0), boundPlayer.getString(1));
         }
-    }
-
-    @Override
-    public void validate()
-    {
-        super.validate();
     }
 
     public void destroy()

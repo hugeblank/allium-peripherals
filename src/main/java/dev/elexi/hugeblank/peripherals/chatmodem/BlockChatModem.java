@@ -1,33 +1,33 @@
 package dev.elexi.hugeblank.peripherals.chatmodem;
 
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
-import dan200.computercraft.shared.util.WaterloggableBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.EntityContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.ViewableWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BlockChatModem extends Block implements WaterloggableBlock, BlockEntityProvider {
+import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
+import static net.minecraft.state.property.Properties.WATERLOGGED;
+
+public class BlockChatModem extends Block implements Waterloggable, BlockEntityProvider {
 
     public static final DirectionProperty FACING = Properties.FACING;
     public static final BooleanProperty ON = BooleanProperty.of( "on" );
@@ -36,7 +36,7 @@ public class BlockChatModem extends Block implements WaterloggableBlock, BlockEn
 
     public BlockChatModem(Settings settings, boolean creative) {
         super(settings);
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( ON, false )
             .with( PAIRED, false)
@@ -57,15 +57,16 @@ public class BlockChatModem extends Block implements WaterloggableBlock, BlockEn
 
     @Override
     @Deprecated
-    public boolean activate(BlockState blockState_1, World world_1, BlockPos blockPos_1, PlayerEntity playerEntity_1, Hand hand_1, BlockHitResult blockHitResult_1) {
+    public ActionResult onUse(BlockState blockState_1, World world_1, BlockPos blockPos_1, PlayerEntity playerEntity_1, Hand hand_1, BlockHitResult blockHitResult_1) {
         if (hand_1 == Hand.MAIN_HAND && !world_1.isClient) {
             BlockEntity be = world_1.getBlockEntity(blockPos_1);
             if (be instanceof ChatModemBlockEntity) {
                 ChatModemBlockEntity chatmodem = (ChatModemBlockEntity) be;
                 chatmodem.onBlockInteraction(playerEntity_1);
+                return ActionResult.SUCCESS;
             };
         }
-        return false;
+        return ActionResult.FAIL;
     }
 
     @Override
@@ -81,18 +82,18 @@ public class BlockChatModem extends Block implements WaterloggableBlock, BlockEn
 
     @Override
     @Deprecated
-    public final void onBlockRemoved(@Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
+    public final void onStateReplaced(@Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
     {
         if( block.getBlock() == replace.getBlock() ) return;
 
         BlockEntity tile = world.getBlockEntity( pos );
-        super.onBlockRemoved( block, world, pos, replace, bool );
+        super.onStateReplaced( block, world, pos, replace, bool );
         world.removeBlockEntity( pos );
         if( tile instanceof ChatModemBlockEntity) ((ChatModemBlockEntity) tile).destroy();
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, ON, PAIRED, WATERLOGGED );
     }
@@ -100,7 +101,7 @@ public class BlockChatModem extends Block implements WaterloggableBlock, BlockEn
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape(BlockState blockState, BlockView world, BlockPos pos, EntityContext position )
+    public VoxelShape getOutlineShape(BlockState blockState, BlockView world, BlockPos pos, ShapeContext position )
     {
         return ModemShapes.getBounds( blockState.get( FACING ) );
     }
@@ -114,9 +115,8 @@ public class BlockChatModem extends Block implements WaterloggableBlock, BlockEn
     }
 
     @Nonnull
-    @Override
     @Deprecated
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction side, BlockState otherState, IWorld world, BlockPos pos, BlockPos otherPos )
+    public BlockState getStateForNeighborUpdate(BlockState state, Direction side, BlockState otherState, World world, BlockPos pos, BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         return side == state.get( FACING ) && !state.canPlaceAt( world, pos )
@@ -126,7 +126,7 @@ public class BlockChatModem extends Block implements WaterloggableBlock, BlockEn
 
     @Override
     @Deprecated
-    public boolean canPlaceAt(BlockState state, ViewableWorld world, BlockPos pos )
+    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos )
     {
         Direction facing = state.get( FACING );
         BlockPos offsetPos = pos.offset( facing );

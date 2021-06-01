@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.2.5-SNAPSHOT'
+	id 'fabric-loom' version '0.6-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -25,14 +25,10 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	implementation 'javax.vecmath:vecmath:1.5.2'
-	implementation "blue.endless:jankson:1.1.2"
-	modImplementation("me.shedaniel.cloth:config-2:1.2.1") {
-		exclude group : "net.fabricmc"
-	}
+	runtimeOnly "blue.endless:jankson:1.2.0"
+	modRuntime "me.shedaniel.cloth.api:cloth-api:1.5.50"
 
-	modImplementation("org.mystia.craft:cc-t-fabric-${project.minecraft_version}:${project.cc_version}") {
-		exclude group : "net.fabricmc"
-	}
+	modImplementation "com.github.Merith-TK:cc-restitched:${project.cc_version}"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
@@ -55,20 +51,10 @@ repositories {
 	mavenLocal()
 	mavenCentral()
 	maven {
-		name "JEI"
-		url  "http://dvs1.progwml6.com/files/maven"
+		url "https://jitpack.io"
 	}
 	maven {
-		name "SquidDev"
-		url "https://squiddev.cc/maven"
-	}
-	ivy {
-		name "Charset"
-		artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]"
-	}
-	maven {
-		name "Amadornes"
-		url "http://maven.amadornes.com/"
+		url "https://maven.shedaniel.me/"
 	}
 }
 

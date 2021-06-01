@@ -1,11 +1,11 @@
 package dev.elexi.hugeblank.mixin;
 
+import dev.elexi.hugeblank.Allium;
 import dev.elexi.hugeblank.peripherals.chatmodem.ChatModemState;
 import dev.elexi.hugeblank.peripherals.chatmodem.IChatCatcher;
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.packet.ChatMessageC2SPacket;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,17 +17,19 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class ChatMixin {
 
     @Shadow
-    private ServerPlayerEntity player;
+    public ServerPlayerEntity player;
 
-    @Inject(method = "onChatMessage", at = @At(value = "INVOKE", target = "net/minecraft/server/PlayerManager.broadcastChatMessage(Lnet/minecraft/text/Text;Z)V"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    protected void onChatMessage(ChatMessageC2SPacket chatMessageC2SPacket_1, CallbackInfo ci, String message, Text text_1) {
+    @Inject(method = "onGameMessage(Lnet/minecraft/network/packet/c2s/play/ChatMessageC2SPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;filterText(Ljava/lang/String;Ljava/util/function/Consumer;)V"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+    protected void onChatMessage(ChatMessageC2SPacket packet, CallbackInfo ci, String str) {
         boolean cancel = false;
         if (!player.getEntityWorld().isClient) {
+            Allium.debug( "Catchers: " + IChatCatcher.catcher);
             for (int i = 0; i < IChatCatcher.catcher.size(); i++) {
                 ChatModemState modem = IChatCatcher.catcher.get(i);
                 if (player.getUuidAsString().equals(modem.getBound()) || modem.creative) {
-                    cancel = modem.handleChatEvents(message, player);
-                    System.out.println("World: " + (player.getEntityWorld().isClient() ? "client" : "server") + ", cancelled: " + (cancel ? "yes" : "no"));
+                    boolean c = modem.handleChatEvents(packet.getChatMessage(), player);
+                    if (c) cancel = true;
+                    Allium.debug("World: " + (player.getEntityWorld().isClient() ? "client" : "server") + ", cancelled: " + (cancel ? "yes" : "no"));
                 }
             }
             if (cancel) ci.cancel();

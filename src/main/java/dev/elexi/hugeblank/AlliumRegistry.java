@@ -20,6 +20,8 @@ public final class AlliumRegistry {
             .icon(() -> new ItemStack(Blocks.ALLIUM))
             .build();
 
+    private static final Item.Settings setting = new Item.Settings().group(mainItemGroup);
+
     private AlliumRegistry() {
     }
 
@@ -29,7 +31,7 @@ public final class AlliumRegistry {
         Registry.register(Registry.BLOCK, new Identifier(Allium.MOD_ID, "chat_modem_creative"), Allium.Blocks.chatModemCreative);
     }
 
-    public static void registerTileEntities() {
+    public static void registerBlockEntities() {
         normalSupplier = () -> {
             ChatModemBlockEntity be = new ChatModemBlockEntity(ChatModemBlockEntity.normalChatModem, false);
             return be;
@@ -39,22 +41,18 @@ public final class AlliumRegistry {
             return be;
         };
 
-        Registry.register(Registry.BLOCK_ENTITY, new Identifier(Allium.MOD_ID, "chat_modem"), ChatModemBlockEntity.normalChatModem);
-        Registry.register(Registry.BLOCK_ENTITY, new Identifier(Allium.MOD_ID, "chat_modem_creative"), ChatModemBlockEntity.creativeChatModem);
+        Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(Allium.MOD_ID, "chat_modem"), ChatModemBlockEntity.normalChatModem);
+        Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(Allium.MOD_ID, "chat_modem_creative"), ChatModemBlockEntity.creativeChatModem);
 
 
     }
 
     private static void registerItemBlock(MutableRegistry<Item> registry, BlockItem item) {
-        registry.add(Registry.BLOCK.getId(item.getBlock()), item);
-    }
-
-    private static Item.Settings defaultItem() {
-        return new Item.Settings().group(mainItemGroup);
+        registry.register(Registry.ITEM, Registry.BLOCK.getId(item.getBlock()), item);
     }
 
     public static void registerItems(MutableRegistry<Item> registry) {
-        registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModem, defaultItem() ) );
-        registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModemCreative, defaultItem() ) );
+        registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModem, setting ) );
+        registerItemBlock( registry, new BlockItem( Allium.Blocks.chatModemCreative, setting ) );
     }
 }

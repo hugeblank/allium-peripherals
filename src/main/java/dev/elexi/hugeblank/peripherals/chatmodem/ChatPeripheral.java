@@ -1,23 +1,25 @@
 package dev.elexi.hugeblank.peripherals.chatmodem;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.core.apis.ArgumentHelper;
+import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.LiteralText;
+import org.jetbrains.annotations.NotNull;
+
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
-public abstract class ChatPeripheral implements IPeripheral {
+public abstract class ChatPeripheral implements IDynamicPeripheral {
 
-    private final Set<IComputerAccess> m_computers = new HashSet<>( 1 );
+    private final HashSet<IComputerAccess> m_computers = new HashSet<>();
     public final boolean creative;
-    private String[] boundPlayer = new String[2];
-    private ChatModemState modem;
+    private final String[] boundPlayer = new String[2];
+    private final ChatModemState modem;
 
     protected ChatPeripheral(ChatModemState modem)
     {
@@ -43,12 +45,12 @@ public abstract class ChatPeripheral implements IPeripheral {
         String[] playerInfo = getBoundPlayer();
         if (!getModemState().isBound()) {
             setBoundPlayer(player.getName().asString(), player.getUuidAsString());
-            player.sendMessage(new LiteralText("Bound modem to " + playerInfo[0] + "."));
+            player.sendMessage(new LiteralText("Bound modem to " + playerInfo[0]), true);
         } else if (playerInfo[1].equals(player.getUuidAsString())) {
-            player.sendMessage(new LiteralText("Unbound modem from player " + playerInfo[0] + "."));
+            player.sendMessage(new LiteralText("Unbound modem from player " + playerInfo[0]), true);
             setBoundPlayer(null, null);
         } else {
-            player.sendMessage(new LiteralText("Modem currently bound to player " + playerInfo[0] + "."));
+            player.sendMessage(new LiteralText("Modem currently bound to player " + playerInfo[0]), true);
         }
     }
 
@@ -57,12 +59,14 @@ public abstract class ChatPeripheral implements IPeripheral {
     }
 
     @Override
+    @NotNull
     public String getType() {
         return "chat_modem";
     }
 
     @Override
-    public String[] getMethodNames() {
+    @NotNull
+    public String @NotNull [] getMethodNames() {
         if (this.creative) {
             return new String[]{
                 "capture",
@@ -81,49 +85,33 @@ public abstract class ChatPeripheral implements IPeripheral {
     }
 
     @Override
-    public Object[] callMethod(IComputerAccess computer, ILuaContext context, int method, Object[] arguments) throws LuaException, InterruptedException {
+    @NotNull
+    public MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
         if (!this.getModemState().isBound() && !this.creative) {
-            return new Object[] { false };
+            return MethodResult.of(false);
         }
         switch (method) {
             case 0:
                 //capture
-                String capture = ArgumentHelper.getString(arguments, 0);
+                String capture = arguments.getString(0);
                 modem.capture(capture);
-                return null;
+                return MethodResult.of();
             case 1:
                 //uncapture
-                if (arguments.length == 0 ) {
-                    modem.uncapture(null);
-                    return null;
-                } else if (ArgumentHelper.getType(arguments[0]).equals("string")) {
-                    return new Object[] { modem.uncapture(ArgumentHelper.getString(arguments, 0)) };
-                } else {
-                    throw new LuaException("Expected string got " + ArgumentHelper.getType(arguments[0]));
-                }
+                String caps = arguments.optString(0, null);
+                return MethodResult.of(modem.uncapture(caps));
             case 2:
                 //getCaptures
-                String[] captures = modem.getCaptures();
-                HashMap<Integer, String> capSet = new HashMap<>();
-                for (int i = 0; i < captures.length; i++) {
-                    capSet.put(i+1, captures[i]);
-                }
-                return new Object[] { capSet };
+                return MethodResult.of((Object[]) modem.getCaptures());
             case 3:
                 //say
-                if (arguments.length == 0) {
-                    throw new LuaException("Invalid argument #1 ( Expected string, got nil)");
-                } else if (ArgumentHelper.getType(arguments[0]).equals("string")) {
-                    modem.say(ArgumentHelper.getString(arguments, 0));
-                    return new Object[] { true };
-                } else {
-                    throw new LuaException("Invalid argument #1 ( Expected string, got " + ArgumentHelper.getType(arguments[0]) + ")");
-                }
+                    modem.say(arguments.getString(0));
+                    return MethodResult.of(true);
             case 4:
                 //getBoundPlayer
-                return new Object[] { this.boundPlayer[0], this.boundPlayer[1] };
+                return MethodResult.of(this.boundPlayer[0], this.boundPlayer[1]);
             default:
-                return null;
+                return MethodResult.of();
         }
     }
 
