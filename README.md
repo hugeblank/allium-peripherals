@@ -1,4 +1,4 @@
-# Allium Peripherals
+# Allium Peripherals [![](http://cf.way2muchnoise.eu/full_348254_downloads.svg)![](http://cf.way2muchnoise.eu/versions/348254.svg)](https://minecraft.curseforge.com/projects/allium-peripherals)
 
 For CC:T for Fabric & Minecraft 1.16.5
 
