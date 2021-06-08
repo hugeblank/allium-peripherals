@@ -4,7 +4,7 @@ For CC:T for Fabric & Minecraft 1.16.5
 
 Allium offers a couple peripherals - and more planned as ideas are proposed. The two currently provided are the survival and creative chat modem. These modems function identically to the
 chat module from [SquidDev's Plethora](https://github.com/SquidDev-CC/Plethora) peripherals mod. 
-This mod depends on [ComputerCraft: Restitched Updated](https://www.curseforge.com/minecraft/mc-mods/cc-restitched-updated).
+This mod depends on [ComputerCraft: Restitched](https://www.curseforge.com/minecraft/mc-mods/cc-restitched).
  
 ## Items
 The current list of items in the game, along with a bit of documentation on their methods.
