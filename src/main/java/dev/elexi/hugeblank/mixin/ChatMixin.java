@@ -1,7 +1,7 @@
 package dev.elexi.hugeblank.mixin;
 
 import dev.elexi.hugeblank.Allium;
-import dev.elexi.hugeblank.peripherals.chatmodem.ChatModemState;
+import dev.elexi.hugeblank.peripherals.chatmodem.ChatPeripheral;
 import dev.elexi.hugeblank.peripherals.chatmodem.IChatCatcher;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -25,8 +25,9 @@ public abstract class ChatMixin {
         if (!player.getEntityWorld().isClient) {
             Allium.debug( "Catchers: " + IChatCatcher.catcher);
             for (int i = 0; i < IChatCatcher.catcher.size(); i++) {
-                ChatModemState modem = IChatCatcher.catcher.get(i);
-                if (player.getUuidAsString().equals(modem.getBound()) || modem.creative) {
+                ChatPeripheral modem = IChatCatcher.catcher.get(i);
+                modem.isBound();
+                if (modem.creative) {
                     boolean c = modem.handleChatEvents(packet.getChatMessage(), player);
                     if (c) cancel = true;
                     Allium.debug("World: " + (player.getEntityWorld().isClient() ? "client" : "server") + ", cancelled: " + (cancel ? "yes" : "no"));

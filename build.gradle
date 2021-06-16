@@ -28,7 +28,10 @@ dependencies {
 	runtimeOnly "blue.endless:jankson:1.2.0"
 	modRuntime "me.shedaniel.cloth.api:cloth-api:1.5.50"
 
-	modImplementation "com.github.Merith-TK:cc-restitched:${project.cc_version}"
+	modImplementation 'com.github.hugeblank:cc-tweaked-fabric:fabric-SNAPSHOT' //"com.github.Merith-TK:cc-restitched:${project.cc_version}"
+
+	implementation 'com.electronwill.night-config:toml:3.6.3'
+	implementation 'com.electronwill.night-config:core:3.6.3'
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

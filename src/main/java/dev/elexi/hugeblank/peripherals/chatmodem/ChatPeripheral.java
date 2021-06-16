@@ -1,61 +1,45 @@
 package dev.elexi.hugeblank.peripherals.chatmodem;
 
-import dan200.computercraft.api.lua.IArguments;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.entity.player.PlayerEntity;
+import dev.elexi.hugeblank.api.player.PlayerPeripheral;
+import dev.elexi.hugeblank.util.LuaPattern;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
+import java.util.ArrayList;
 
-public abstract class ChatPeripheral implements IDynamicPeripheral {
+public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
 
-    private final HashSet<IComputerAccess> m_computers = new HashSet<>();
     public final boolean creative;
-    private final String[] boundPlayer = new String[2];
-    private final ChatModemState modem;
+    private final ArrayList<String> captures = new ArrayList<>();
+    private boolean open;
 
-    protected ChatPeripheral(ChatModemState modem)
+    protected ChatPeripheral(boolean creative)
     {
-        modem.setComputers(m_computers);
-        this.modem = modem;
-        this.creative = modem.creative;
-    }
+        super();
+        this.creative = creative;
 
-    public ChatModemState getModemState() { return modem; }
-
-    public synchronized void setBoundPlayer(String name, String id) {
-        if (name != null && id != null) {
-            modem.setBound(id);
-        } else {
-            modem.setBound(null);
+        if (!creative) {
+            addMethod("say", (comps, context, args)->{
+                say(args.getString(0));
+                return MethodResult.of(true);
+            });
         }
-        this.boundPlayer[0] = name;
-        this.boundPlayer[1] = id;
-    }
-
-    public void setPlayer(PlayerEntity player) {
-        if (this.creative) return;
-        String[] playerInfo = getBoundPlayer();
-        if (!getModemState().isBound()) {
-            setBoundPlayer(player.getName().asString(), player.getUuidAsString());
-            player.sendMessage(new LiteralText("Bound modem to " + playerInfo[0]), true);
-        } else if (playerInfo[1].equals(player.getUuidAsString())) {
-            player.sendMessage(new LiteralText("Unbound modem from player " + playerInfo[0]), true);
-            setBoundPlayer(null, null);
-        } else {
-            player.sendMessage(new LiteralText("Modem currently bound to player " + playerInfo[0]), true);
-        }
-    }
-
-    public String[] getBoundPlayer() {
-        return this.boundPlayer;
+        addMethod("capture", (computer, context, args) -> {
+            String capture = args.getString(0);
+            capture(capture);
+            return MethodResult.of();
+        });
+        addMethod("uncapture",
+                (computer, context, args) -> MethodResult.of(uncapture(args.optString(0, null)))
+        );
+        addMethod("getCaptures",
+                (computer, context, args) -> MethodResult.of(getCaptures())
+        );
     }
 
     @Override
@@ -64,80 +48,95 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
         return "chat_modem";
     }
 
-    @Override
-    @NotNull
-    public String @NotNull [] getMethodNames() {
-        if (this.creative) {
-            return new String[]{
-                "capture",
-                "uncapture",
-                "getCaptures"
-            };
-        }else {
-            return new String[]{
-                "capture",
-                "uncapture",
-                "getCaptures",
-                "say",
-                "getBoundPlayer"
-            };
-        }
+    public void destroy() {
+        uncapture(null);
     }
 
-    @Override
-    @NotNull
-    public MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
-        if (!this.getModemState().isBound() && !this.creative) {
-            return MethodResult.of(false);
+    public boolean isOpen() { return open;}
+
+    private void setOpen( boolean state) {
+        if(state && !catcher.contains(this)) {
+            catcher.add(this);
+        } else if (!state){
+            catcher.remove(this);
         }
-        switch (method) {
-            case 0:
-                //capture
-                String capture = arguments.getString(0);
-                modem.capture(capture);
-                return MethodResult.of();
-            case 1:
-                //uncapture
-                String caps = arguments.optString(0, null);
-                return MethodResult.of(modem.uncapture(caps));
-            case 2:
-                //getCaptures
-                return MethodResult.of((Object[]) modem.getCaptures());
-            case 3:
-                //say
-                    modem.say(arguments.getString(0));
-                    return MethodResult.of(true);
-            case 4:
-                //getBoundPlayer
-                return MethodResult.of(this.boundPlayer[0], this.boundPlayer[1]);
-            default:
-                return MethodResult.of();
-        }
+        this.open = state;
+        entity.markDirty();
     }
 
-    @Override
-    public synchronized void attach( @Nonnull IComputerAccess computer )
-    {
-        synchronized( m_computers )
-        {
-            m_computers.add( computer );
-        }
-    }
-
-    @Override
-    public synchronized void detach( @Nonnull IComputerAccess computer )
-    {
-        synchronized( m_computers )
-        {
-            m_computers.remove( computer );
-            if (m_computers.isEmpty()) {
-                modem.uncapture(null);
+    public boolean handleChatEvents(String message, ServerPlayerEntity player) {
+        boolean out = false;
+        String username = player.getEntityName();
+        String id = player.getUuid().toString();
+        String[] captures = (String[]) getCaptures();
+        for (IComputerAccess computer : getComputers()) {
+            computer.queueEvent("chat_message", username, message, id);
+            for (String capture : captures) {
+                if (LuaPattern.matches(message, capture)) {
+                    computer.queueEvent("chat_capture", message, capture, username, id);
+                    out = true;
+                }
             }
+        }
+        return out;
+    }
+
+    public void capture(String capture) {
+        synchronized (captures) {
+            boolean exists = false;
+            for (String s : captures) {
+                if (s.equals(capture)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                captures.add(capture);
+            }
+        }
+        setOpen(true);
+    }
+
+    public Object[] getCaptures() {
+        synchronized (captures) {
+            return captures.toArray();
+        }
+    }
+
+    public boolean uncapture(String capture) {
+        boolean out = false;
+        synchronized (captures) {
+            if (capture == null) {
+                for (int i = 0; i < captures.size(); i++) {
+                    captures.remove(i);
+                }
+                out = true;
+            } else {
+                for (int i = 0; i < captures.size(); i++) {
+                    if (capture.equals(captures.get(i))) {
+                        captures.remove(i);
+                    }
+                    out = true;
+                }
+            }
+            if (captures.isEmpty()) catcher.remove(this);
+            return out;
+        }
+    }
+
+    public void say(String message) {
+        if (player != null) {
+            player.sendMessage(new LiteralText(message), false);
         }
     }
 
     @Override
     public boolean equals(IPeripheral other) {
-        return other == this;
+        return this == other || (other instanceof ChatPeripheral && entity == ((ChatPeripheral) other).entity);
+    }
+
+    @Override
+    public synchronized void detach(@Nonnull IComputerAccess computer) {
+        uncapture(null);
     }
 }

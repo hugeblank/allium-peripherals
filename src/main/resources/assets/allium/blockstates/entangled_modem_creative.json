@@ -1,0 +1,10 @@
+{
+    "variants": {
+      "facing=up,paired=false": { "model": "allium:block/entangled_modem_creative", "x": 270 },
+      "facing=down,paired=false": { "model": "allium:block/entangled_modem_creative", "x": 90 },
+      "facing=north,paired=false": { "model": "allium:block/entangled_modem_creative" },
+      "facing=south,paired=false": { "model": "allium:block/entangled_modem_creative", "y": 180 },
+      "facing=west,paired=false": { "model": "allium:block/entangled_modem_creative", "y": 270 },
+      "facing=east,paired=false": { "model": "allium:block/entangled_modem_creative", "y": 90 }
+    }
+  }

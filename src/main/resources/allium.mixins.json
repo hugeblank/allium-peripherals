@@ -3,7 +3,8 @@
   "package": "dev.elexi.hugeblank.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ChatMixin"
+    "ChatMixin",
+    "PlayerManagerSaveHandlerAccessor"
   ],
   "client": [
   ],
