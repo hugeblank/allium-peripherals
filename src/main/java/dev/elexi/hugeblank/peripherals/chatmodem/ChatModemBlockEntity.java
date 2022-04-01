@@ -2,15 +2,14 @@ package dev.elexi.hugeblank.peripherals.chatmodem;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
-import dev.elexi.hugeblank.Allium;
-import dev.elexi.hugeblank.AlliumRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
@@ -18,9 +17,8 @@ import javax.annotation.Nullable;
 
 public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile {
 
-    public static BlockEntityType<ChatModemBlockEntity> normalChatModem = BlockEntityType.Builder.create(AlliumRegistry.normalSupplier, Allium.Blocks.chatModem).build(null);
-    public static BlockEntityType<ChatModemBlockEntity> creativeChatModem = BlockEntityType.Builder.create(AlliumRegistry.creativeSupplier, Allium.Blocks.chatModemCreative).build(null);
-
+    public static BlockEntityType<ChatModemBlockEntity> normalChatModem;
+    public static BlockEntityType<ChatModemBlockEntity> creativeChatModem;
 
     private static class Peripheral extends ChatPeripheral {
         private final ChatModemBlockEntity entity;
@@ -47,9 +45,14 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     private boolean destroyed = false;
     private Peripheral modem;
 
-    public ChatModemBlockEntity(BlockEntityType<? extends ChatModemBlockEntity> type, boolean creative ) {
-        super( type );
+    public ChatModemBlockEntity(BlockEntityType<? extends ChatModemBlockEntity> type, BlockPos pos, BlockState state, boolean creative ) {
+        super( type, pos, state );
         modem = new Peripheral( this, creative);
+    }
+
+    public static boolean registryCreativeMode = false;
+    public ChatModemBlockEntity(BlockPos pos, BlockState state) {
+        this(registryCreativeMode ? ChatModemBlockEntity.creativeChatModem : ChatModemBlockEntity.normalChatModem, pos, state, registryCreativeMode);
     }
 
     public void onBlockInteraction(PlayerEntity player) {
@@ -57,14 +60,14 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     }
 
     @Override
-    public CompoundTag toTag(CompoundTag tag) {
-        super.toTag(tag);
+    public NbtCompound writeNbt(NbtCompound tag) {
+        super.writeNbt(tag);
         if (modem.creative) return tag;
         String[] playerInfo = modem.getBoundPlayer();
         if (modem.getModemState().isBound()) {
-            ListTag boundPlayer = new ListTag();
-            boundPlayer.addTag(0, StringTag.of(playerInfo[0]));
-            boundPlayer.addTag(1, StringTag.of(playerInfo[1]));
+            NbtList boundPlayer = new NbtList();
+            boundPlayer.add(0, NbtString.of(playerInfo[0]));
+            boundPlayer.add(1, NbtString.of(playerInfo[1]));
 
             tag.put("boundPlayer", boundPlayer);
         }
@@ -72,11 +75,11 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     }
 
     @Override
-    public void fromTag(BlockState state, CompoundTag tag) {
-        super.fromTag(state, tag);
+    public void readNbt(NbtCompound tag) {
+        super.readNbt(tag);
         if (modem.creative) return;
         if (tag.getType("boundPlayer") != 0 && !modem.getModemState().isBound()) {
-            ListTag boundPlayer = tag.getList("boundPlayer", 8);
+            NbtList boundPlayer = tag.getList("boundPlayer", 8);
             modem.setBoundPlayer(boundPlayer.getString(0), boundPlayer.getString(1));
         }
     }
@@ -107,9 +110,9 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     }
 
     @Override
-    public void resetBlock()
+    public void markRemoved()
     {
-        super.resetBlock();
+        super.markRemoved();
         hasModemDirection = false;
         world.getBlockTickScheduler().schedule( getPos(), getCachedState().getBlock(), 0 );
     }
