@@ -45,14 +45,14 @@ public class BlockChatModem extends Block implements Waterloggable, BlockEntityP
     }
 
     @Override
-    public BlockEntity createBlockEntity(BlockView view) {
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         BlockEntityType<ChatModemBlockEntity> use;
         if (this.creative) {
             use = ChatModemBlockEntity.creativeChatModem;
         } else {
             use = ChatModemBlockEntity.normalChatModem;
         }
-        return new ChatModemBlockEntity(use, this.creative);
+        return new ChatModemBlockEntity(use, pos, state, this.creative);
     }
 
     @Override
