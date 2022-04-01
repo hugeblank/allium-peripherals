@@ -60,9 +60,9 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound tag) {
+    public void writeNbt(NbtCompound tag) {
         super.writeNbt(tag);
-        if (modem.creative) return tag;
+        if (modem.creative) return;
         String[] playerInfo = modem.getBoundPlayer();
         if (modem.getModemState().isBound()) {
             NbtList boundPlayer = new NbtList();
@@ -71,7 +71,6 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
 
             tag.put("boundPlayer", boundPlayer);
         }
-        return tag;
     }
 
     @Override
@@ -114,7 +113,7 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     {
         super.markRemoved();
         hasModemDirection = false;
-        world.getBlockTickScheduler().schedule( getPos(), getCachedState().getBlock(), 0 );
+        world.createAndScheduleBlockTick( getPos(), getCachedState().getBlock(), 0 );
     }
 
     private void updateDirection()

@@ -1,6 +1,7 @@
 package dev.elexi.hugeblank.peripherals.chatmodem;
 
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
+import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -111,14 +112,14 @@ public class BlockChatModem extends Block implements Waterloggable, BlockEntityP
     @Deprecated
     public FluidState getFluidState(BlockState state )
     {
-        return getWaterloggedFluidState( state );
+        return WaterloggableHelpers.getFluidState(state);
     }
 
     @Nonnull
     @Deprecated
     public BlockState getStateForNeighborUpdate(BlockState state, Direction side, BlockState otherState, World world, BlockPos pos, BlockPos otherPos )
     {
-        updateWaterloggedPostPlacement( state, world, pos );
+        updateShape( state, world, pos );
         return side == state.get( FACING ) && !state.canPlaceAt( world, pos )
                 ? state.getFluidState().getBlockState()
                 : state;
@@ -140,6 +141,6 @@ public class BlockChatModem extends Block implements Waterloggable, BlockEntityP
     {
         return getDefaultState()
                 .with( FACING, placement.getSide().getOpposite() )
-                .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+                .with( WATERLOGGED, getFluidStateForPlacement( placement ) );
     }
 }
