@@ -7,7 +7,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = project.mod_version + '+' + project.minecraft_version
 group = project.maven_group
 
 repositories {
@@ -41,6 +41,7 @@ dependencies {
 	modApi 'com.electronwill.night-config:toml:3.6.3'
 
 	modApi "com.github.cc-tweaked:cc-restitched:${project.cc_version}"
+
 
 	modApi("me.shedaniel.cloth:cloth-config-fabric:6.2.57") {
 		exclude(group: "net.fabricmc.fabric-api")
