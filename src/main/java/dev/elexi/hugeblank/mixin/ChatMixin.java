@@ -20,7 +20,7 @@ public abstract class ChatMixin {
     public ServerPlayerEntity player;
 
     @Inject(method = "onChatMessage(Lnet/minecraft/network/packet/c2s/play/ChatMessageC2SPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;filterText(Ljava/lang/String;Ljava/util/function/Consumer;)V"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    protected void onChatMessage(ChatMessageC2SPacket packet, CallbackInfo ci, String str) {
+    protected void onChatMessage(ChatMessageC2SPacket packet, CallbackInfo ci) {
         boolean cancel = false;
         if (!player.getEntityWorld().isClient) {
             Allium.debug( "Catchers: " + IChatCatcher.catcher);
