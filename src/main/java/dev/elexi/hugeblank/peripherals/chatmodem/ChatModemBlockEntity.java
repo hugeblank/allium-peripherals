@@ -14,7 +14,6 @@ import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile {
 
@@ -65,14 +64,10 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
         super.writeNbt(tag);
         if (modem.creative) return;
         String[] playerInfo = modem.getBoundPlayer();
-        if (playerInfo == null) return;
-
         if (modem.getModemState().isBound()) {
             NbtList boundPlayer = new NbtList();
-            if (playerInfo[0] != null)
-                boundPlayer.add(0, NbtString.of(playerInfo[0]));
-            if (playerInfo[1] != null)
-                boundPlayer.add(1, NbtString.of(playerInfo[1]));
+            boundPlayer.add(0, NbtString.of(playerInfo[0]));
+            boundPlayer.add(1, NbtString.of(playerInfo[1]));
 
             tag.put("boundPlayer", boundPlayer);
         }
@@ -82,7 +77,6 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     public void readNbt(NbtCompound tag) {
         super.readNbt(tag);
         if (modem.creative) return;
-        if (!tag.contains("boundPlayer")) return;
         if (tag.getType("boundPlayer") != 0 && !modem.getModemState().isBound()) {
             NbtList boundPlayer = tag.getList("boundPlayer", 8);
             modem.setBoundPlayer(boundPlayer.getString(0), boundPlayer.getString(1));
@@ -119,7 +113,7 @@ public class ChatModemBlockEntity extends BlockEntity implements IPeripheralTile
     {
         super.markRemoved();
         hasModemDirection = false;
-        Objects.requireNonNull(world).createAndScheduleBlockTick( getPos(), getCachedState().getBlock(), 0 );
+        world.createAndScheduleBlockTick( getPos(), getCachedState().getBlock(), 0 );
     }
 
     private void updateDirection()
