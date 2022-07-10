@@ -8,7 +8,8 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.LiteralText;
+
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -44,13 +45,13 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
         if (this.creative) return;
         String[] playerInfo = getBoundPlayer();
         if (!getModemState().isBound()) {
-            setBoundPlayer(player.getName().asString(), player.getUuidAsString());
-            player.sendMessage(new LiteralText("Bound modem to " + playerInfo[0]), true);
+            setBoundPlayer(player.getName().getString(), player.getUuidAsString());
+            player.sendMessage(Text.literal("Bound modem to " + playerInfo[0]), true);
         } else if (playerInfo[1].equals(player.getUuidAsString())) {
-            player.sendMessage(new LiteralText("Unbound modem from player " + playerInfo[0]), true);
+            player.sendMessage(Text.literal("Unbound modem from player " + playerInfo[0]), true);
             setBoundPlayer(null, null);
         } else {
-            player.sendMessage(new LiteralText("Modem currently bound to player " + playerInfo[0]), true);
+            player.sendMessage(Text.literal("Modem currently bound to player " + playerInfo[0]), true);
         }
     }
 

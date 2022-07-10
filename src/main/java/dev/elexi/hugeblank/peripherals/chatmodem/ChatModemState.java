@@ -4,7 +4,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dev.elexi.hugeblank.util.LuaPattern;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -127,7 +127,7 @@ public class ChatModemState implements IChatCatcher {
     public void say(String message) {
         PlayerEntity player = blockEntity.getWorld().getPlayerByUuid( UUID.fromString(boundid) );
         if (player != null) {
-            player.sendMessage(new LiteralText(message), false);
+            player.sendMessage(Text.literal(message), false);
         }
     }
 }
