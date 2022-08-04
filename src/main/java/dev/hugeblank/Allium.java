@@ -26,7 +26,6 @@ public class Allium implements ModInitializer {
                     .build()
     );
 
-    public static final String MOD_ID = "allium";
     public static final class Blocks {
         private static final FabricBlockSettings DEFAULT = FabricBlockSettings.of(Material.STONE).hardness(2);
 
@@ -64,3 +63,5 @@ public class Allium implements ModInitializer {
         if (FL_INSTANCE.isDevelopmentEnvironment()) System.out.println(o);
     }
 }
+
+    public static final String MOD_ID = "allium_peripherals";
