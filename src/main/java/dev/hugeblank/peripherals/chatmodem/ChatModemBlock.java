@@ -1,6 +1,6 @@
-package dev.elexi.hugeblank.peripherals.chatmodem;
+package dev.hugeblank.peripherals.chatmodem;
 
-import dev.elexi.hugeblank.api.player.PlayerModemBlock;
+import dev.hugeblank.api.player.PlayerModemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;

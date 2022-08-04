@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.elexi.hugeblank.Allium"
+      "dev.hugeblank.Allium"
     ]
   },
   "mixins": [

@@ -1,9 +1,9 @@
-package dev.elexi.hugeblank;
+package dev.hugeblank;
 
-import dev.elexi.hugeblank.peripherals.chatmodem.ChatModemBlock;
-import dev.elexi.hugeblank.peripherals.chatmodem.ChatModemBlockEntity;
-import dev.elexi.hugeblank.peripherals.entangledmodem.EntangledModemBlock;
-import dev.elexi.hugeblank.peripherals.entangledmodem.EntangledModemBlockEntity;
+import dev.hugeblank.peripherals.chatmodem.ChatModemBlock;
+import dev.hugeblank.peripherals.chatmodem.ChatModemBlockEntity;
+import dev.hugeblank.peripherals.entangledmodem.EntangledModemBlock;
+import dev.hugeblank.peripherals.entangledmodem.EntangledModemBlockEntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;

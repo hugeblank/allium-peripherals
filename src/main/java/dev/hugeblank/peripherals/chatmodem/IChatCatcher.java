@@ -1,4 +1,4 @@
-package dev.elexi.hugeblank.peripherals.chatmodem;
+package dev.hugeblank.peripherals.chatmodem;
 
 
 import net.minecraft.server.network.ServerPlayerEntity;

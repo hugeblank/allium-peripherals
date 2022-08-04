@@ -1,7 +1,7 @@
-package dev.elexi.hugeblank.util;
+package dev.hugeblank.util;
 
 import com.mojang.authlib.GameProfile;
-import dev.elexi.hugeblank.mixin.PlayerManagerSaveHandlerAccessor;
+import dev.hugeblank.mixin.PlayerManagerSaveHandlerAccessor;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;

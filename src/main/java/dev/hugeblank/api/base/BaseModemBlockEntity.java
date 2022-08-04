@@ -1,4 +1,4 @@
-package dev.elexi.hugeblank.api.base;
+package dev.hugeblank.api.base;
 
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import net.minecraft.block.entity.BlockEntity;

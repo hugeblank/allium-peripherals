@@ -1,6 +1,6 @@
-package dev.elexi.hugeblank.peripherals.entangledmodem;
+package dev.hugeblank.peripherals.entangledmodem;
 
-import dev.elexi.hugeblank.api.player.PlayerModemBlock;
+import dev.hugeblank.api.player.PlayerModemBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.Waterloggable;

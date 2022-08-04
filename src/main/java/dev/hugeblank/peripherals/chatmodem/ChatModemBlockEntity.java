@@ -1,7 +1,7 @@
-package dev.elexi.hugeblank.peripherals.chatmodem;
+package dev.hugeblank.peripherals.chatmodem;
 
-import dev.elexi.hugeblank.Allium;
-import dev.elexi.hugeblank.api.player.PlayerModemBlockEntity;
+import dev.hugeblank.Allium;
+import dev.hugeblank.api.player.PlayerModemBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 

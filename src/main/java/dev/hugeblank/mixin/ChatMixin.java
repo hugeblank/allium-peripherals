@@ -1,8 +1,8 @@
-package dev.elexi.hugeblank.mixin;
+package dev.hugeblank.mixin;
 
-import dev.elexi.hugeblank.Allium;
-import dev.elexi.hugeblank.peripherals.chatmodem.ChatPeripheral;
-import dev.elexi.hugeblank.peripherals.chatmodem.IChatCatcher;
+import dev.hugeblank.Allium;
+import dev.hugeblank.peripherals.chatmodem.ChatPeripheral;
+import dev.hugeblank.peripherals.chatmodem.IChatCatcher;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;

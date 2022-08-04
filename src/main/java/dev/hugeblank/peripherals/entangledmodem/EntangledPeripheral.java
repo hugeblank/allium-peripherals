@@ -1,4 +1,4 @@
-package dev.elexi.hugeblank.peripherals.entangledmodem;
+package dev.hugeblank.peripherals.entangledmodem;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -6,9 +6,9 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
-import dev.elexi.hugeblank.Allium;
-import dev.elexi.hugeblank.api.player.PlayerPeripheral;
-import dev.elexi.hugeblank.util.InventoryHelpers;
+import dev.hugeblank.Allium;
+import dev.hugeblank.api.player.PlayerPeripheral;
+import dev.hugeblank.util.InventoryHelpers;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;

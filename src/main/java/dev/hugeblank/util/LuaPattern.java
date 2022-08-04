@@ -23,7 +23,7 @@
  * ****************************************************************************
  */
 
-package dev.elexi.hugeblank.util;
+package dev.hugeblank.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

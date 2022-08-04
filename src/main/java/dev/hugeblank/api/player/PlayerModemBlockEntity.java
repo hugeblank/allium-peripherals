@@ -1,10 +1,10 @@
-package dev.elexi.hugeblank.api.player;
+package dev.hugeblank.api.player;
 
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
-import dev.elexi.hugeblank.api.base.BaseModemBlockEntity;
-import dev.elexi.hugeblank.peripherals.chatmodem.ChatModemBlock;
+import dev.hugeblank.api.base.BaseModemBlockEntity;
+import dev.hugeblank.peripherals.chatmodem.ChatModemBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;

@@ -1,4 +1,4 @@
-package dev.elexi.hugeblank.api.base;
+package dev.hugeblank.api.base;
 
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import net.minecraft.block.Block;

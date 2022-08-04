@@ -1,9 +1,9 @@
-package dev.elexi.hugeblank.api.player;
+package dev.hugeblank.api.player;
 
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.MethodResult;
-import dev.elexi.hugeblank.api.base.BasePeripheral;
-import dev.elexi.hugeblank.util.InventoryHelpers;
+import dev.hugeblank.api.base.BasePeripheral;
+import dev.hugeblank.util.InventoryHelpers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;

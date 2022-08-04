@@ -1,10 +1,10 @@
-package dev.elexi.hugeblank.peripherals.chatmodem;
+package dev.hugeblank.peripherals.chatmodem;
 
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dev.elexi.hugeblank.api.player.PlayerPeripheral;
-import dev.elexi.hugeblank.util.LuaPattern;
+import dev.hugeblank.api.player.PlayerPeripheral;
+import dev.hugeblank.util.LuaPattern;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import org.jetbrains.annotations.NotNull;

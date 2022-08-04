@@ -1,8 +1,8 @@
-package dev.elexi.hugeblank.peripherals.entangledmodem;
+package dev.hugeblank.peripherals.entangledmodem;
 
-import dev.elexi.hugeblank.Allium;
-import dev.elexi.hugeblank.api.base.BaseModemBlockEntity;
-import dev.elexi.hugeblank.api.player.PlayerModemBlockEntity;
+import dev.hugeblank.Allium;
+import dev.hugeblank.api.base.BaseModemBlockEntity;
+import dev.hugeblank.api.player.PlayerModemBlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 
 public class EntangledModemBlockEntity extends PlayerModemBlockEntity {

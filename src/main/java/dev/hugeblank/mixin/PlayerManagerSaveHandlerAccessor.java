@@ -1,4 +1,4 @@
-package dev.elexi.hugeblank.mixin;
+package dev.hugeblank.mixin;
 
 import net.minecraft.server.PlayerManager;
 import net.minecraft.world.WorldSaveHandler;
