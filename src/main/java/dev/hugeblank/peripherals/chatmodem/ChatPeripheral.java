@@ -99,7 +99,7 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
                 return MethodResult.of(modem.uncapture(caps));
             case 2:
                 //getCaptures
-                return MethodResult.of((Object) modem.getCaptures());
+                return MethodResult.of((Object[]) modem.getCaptures());
             case 3:
                 //say
                 modem.say(arguments.getString(0));
