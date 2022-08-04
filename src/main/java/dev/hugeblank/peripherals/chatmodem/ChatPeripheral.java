@@ -41,15 +41,14 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
         if (this.creative) return;
         PlayerInfo playerInfo = getBoundPlayer();
         if (player.getServer() != null) {
-            String name = playerInfo.playerName();
             if (!getModemState().isBound()) {
                 setBoundPlayer(new PlayerInfo(player));
                 player.sendMessage(new LiteralText("Bound modem to " + player.getName().asString()), true);
             } else if (playerInfo.uuid().equals(player.getUuid())) {
-                player.sendMessage(new LiteralText("Unbound modem from player " + name), true);
+                player.sendMessage(new LiteralText("Unbound modem from player " + playerInfo.playerName()), true);
                 setBoundPlayer(null);
             } else {
-                player.sendMessage(new LiteralText("Modem currently bound to player " + name), true);
+                player.sendMessage(new LiteralText("Modem currently bound to player " + playerInfo.playerName()), true);
             }
         }
     }
@@ -95,7 +94,7 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
                 //capture
                 String capture = arguments.getString(0);
                 modem.capture(capture);
-                return MethodResult.of(Constants.NIL);
+                return MethodResult.of(true);
             case 1:
                 //uncapture
                 String caps = arguments.optString(0, null);
@@ -105,12 +104,12 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
                 return MethodResult.of((Object[]) modem.getCaptures());
             case 3:
                 //say
-                    modem.say(arguments.getString(0));
-                    return MethodResult.of(true);
+                modem.say(arguments.getString(0));
+                return MethodResult.of(true);
             case 4:
                 //getBoundPlayer
                 PlayerInfo info = getBoundPlayer();
-                return MethodResult.of(info.playerName(), info.uuid());
+                return MethodResult.of(info.playerName(), info.uuid().toString());
             default:
                 return MethodResult.of();
         }

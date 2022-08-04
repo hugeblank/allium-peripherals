@@ -55,6 +55,7 @@ public class BlockChatModem extends Block implements Waterloggable, BlockEntityP
             BlockEntity be = world.getBlockEntity(blockPos);
             if (be instanceof ChatModemBlockEntity chat_modem) {
                 chat_modem.onBlockInteraction(playerEntity);
+                chat_modem.markDirty();
                 return ActionResult.SUCCESS;
             };
         }

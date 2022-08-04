@@ -41,7 +41,6 @@ public class ChatModemState implements IChatCatcher {
 
     public synchronized void setBound(PlayerInfo info) {
         this.playerInfo = info;
-        setOpen(info != null);
     }
     public PlayerInfo getBound() {
         return playerInfo;

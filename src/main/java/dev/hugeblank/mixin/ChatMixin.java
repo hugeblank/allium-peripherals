@@ -25,7 +25,7 @@ public abstract class ChatMixin {
         if (!player.getEntityWorld().isClient) {
             Allium.debug( "Catchers: " + IChatCatcher.CATCHERS);
             for (ChatModemState modem : IChatCatcher.CATCHERS) {
-                if (player.getUuidAsString().equals(modem.getBound()) || modem.creative) {
+                if (player.getUuid().equals(modem.getBound().uuid()) || modem.creative) {
                     boolean c = modem.handleChatEvents(packet.getChatMessage(), player);
                     if (c) cancel = true;
                     Allium.debug("World: " + (player.getEntityWorld().isClient() ? "client" : "server") + ", cancelled: " + (cancel ? "yes" : "no"));
