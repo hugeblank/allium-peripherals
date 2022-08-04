@@ -9,21 +9,20 @@
     "hugeblank"
   ],
   "contact": {
-    "homepage": "https://hugeblank.elexi.dev",
     "sources": "https://github.com/hugeblank/allium-peripherals"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/allium/icon.png",
+  "icon": "assets/allium_peripherals/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.elexi.hugeblank.Allium"
+      "dev.hugeblank.Allium"
     ]
   },
   "mixins": [
-    "allium.mixins.json"
+    "allium_peripherals.mixins.json"
   ],
 
   "depends": {

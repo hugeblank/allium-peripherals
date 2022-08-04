@@ -1,0 +1,7 @@
+{
+    "parent": "allium_peripherals:block/modem",
+    "textures": {
+        "front": "allium_peripherals:block/chat_modem_face_on_paired",
+        "back": "computercraft:block/modem_back"
+    }
+}
