@@ -1,0 +1,10 @@
+{
+    "variants": {
+      "facing=up": { "model": "allium_peripherals:block/entangled_modem_creative", "x": 270 },
+      "facing=down": { "model": "allium_peripherals:block/entangled_modem_creative", "x": 90 },
+      "facing=north": { "model": "allium_peripherals:block/entangled_modem_creative" },
+      "facing=south": { "model": "allium_peripherals:block/entangled_modem_creative", "y": 180 },
+      "facing=west": { "model": "allium_peripherals:block/entangled_modem_creative", "y": 270 },
+      "facing=east": { "model": "allium_peripherals:block/entangled_modem_creative", "y": 90 }
+    }
+  }

@@ -6,14 +6,16 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
-import dev.hugeblank.Allium;
 import dev.hugeblank.api.player.PlayerPeripheral;
 import dev.hugeblank.util.InventoryHelpers;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -30,21 +32,21 @@ public class EntangledPeripheral extends PlayerPeripheral {
 
         addMethod("getInventory", (computer, context, args) -> MethodResult.of(getInventory(computer)));
         addMethod("getEnderInventory", (computer, context, args) -> MethodResult.of(getEnderInventory(computer)));
-        // addMethod("getStatusEffects", (computer, context, args) -> MethodResult.of(getStatusEffects()));
+        addMethod("getStatusEffects", (computer, context, args) -> MethodResult.of(getStatusEffects()));
     }
 
-    public PlayerEntity getPlayer() {
+    public ServerPlayerEntity getPlayer() {
         return InventoryHelpers.getPlayer((ServerWorld) entity.getWorld(), profile);
     }
 
     public InventoryPeripheral getInventory(IComputerAccess computer) {
         if (isBound()) {
-            PlayerEntity player = getPlayer();
-            if (player instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = getPlayer();
+            if (player != null) {
                 if (invCache.containsKey(player)) {
                     return invCache.get(player);
                 } else {
-                    InventoryPeripheral peripheral = new InventoryPeripheral((ServerPlayerEntity) player, player.inventory, computer);
+                    InventoryPeripheral peripheral = new InventoryPeripheral(player, player.getInventory(), computer);
                     invCache.put(player, peripheral);
                     return peripheral;
                 }
@@ -55,12 +57,12 @@ public class EntangledPeripheral extends PlayerPeripheral {
 
     public InventoryPeripheral getEnderInventory(IComputerAccess computer) {
         if (isBound()) {
-            PlayerEntity player = getPlayer();
-            if (player instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = getPlayer();
+            if (player != null) {
                 if (enderCache.containsKey(player)) {
                     return enderCache.get(player);
                 } else {
-                    InventoryPeripheral peripheral = new InventoryPeripheral((ServerPlayerEntity) player, player.getEnderChestInventory(), computer);
+                    InventoryPeripheral peripheral = new InventoryPeripheral(player, player.getEnderChestInventory(), computer);
                     enderCache.put(player, peripheral);
                     return peripheral;
                 }
@@ -69,19 +71,75 @@ public class EntangledPeripheral extends PlayerPeripheral {
         return null;
     }
 
-    public ArrayList<Object[]> getStatusEffects() {
-        ArrayList<Object[]> out = new ArrayList<>();
+    public ArrayList<Map<String, Object>> getStatusEffects() {
+        ArrayList<Map<String, Object>> out = new ArrayList<>();
         if (isBound() && InventoryHelpers.userOnline(Objects.requireNonNull(entity.getWorld()), profile)) {
             ServerPlayerEntity player = Objects.requireNonNull(entity.getWorld().getServer()).getPlayerManager().getPlayer(profile.getId());
             Collection<StatusEffectInstance> effects = player.getStatusEffects();
             for (StatusEffectInstance effect : effects) {
-                Object[] stats = new Object[4];
-                Allium.debug(effect.getEffectType().getName().asString());
-                stats[0] = effect.getEffectType().getName().asString(); // Effect Name
-                stats[1] = effect.getDuration()/20; // Effect duration (seconds)
-                stats[2] = effect.getAmplifier()+1; // Amplifier (1 indexed)
-                stats[3] = effect.shouldShowParticles(); // Particles enabled
+                Map<String, Object> stats = new HashMap<>();
+                // Effects are registered using a raw ID, we have to interpret the translation key instead.
+                stats.put("effect", effect
+                        .getEffectType()
+                        .getTranslationKey()
+                        .replace("effect.", "")
+                        .replace(".", ":")
+                );
+                stats.put("duration", effect.getDuration()/20);
+                stats.put("amplifier", effect.getAmplifier()+1);
+                stats.put("showParticles", effect.shouldShowParticles());
                 out.add(stats);
+            }
+            return out;
+        }
+        return null;
+    }
+
+    public Map<String, Object> getAttributes() {
+        Map<String, Object> out = new HashMap<>();
+        ServerPlayerEntity player = getPlayer();
+        if (player != null) {
+            // Statistical values
+            out.put("health", player.getHealth());
+            out.put("maxHealth", player.getMaxHealth());
+            out.put("breath", player.getAir());
+            out.put("maxBreath", player.getMaxAir());
+            out.put("hunger", player.getHungerManager().getFoodLevel());
+            out.put("saturation", player.getHungerManager().getSaturationLevel());
+            out.put("fireTick", player.getFireTicks());
+            out.put("movementSpeed", player.getMovementSpeed());
+            out.put("experience", player.totalExperience);
+            out.put("experienceLevel", player.experienceLevel);
+            out.put("nextLevelExperience", player.getNextLevelExperience());
+
+
+            // Binary actions
+            out.put("sneaking", player.isSneaking());
+            out.put("sprinting", player.isSprinting());
+            out.put("swimming", player.isSwimming());
+            out.put("freezing", player.isFrozen());
+            out.put("flying", player.isFallFlying());
+            out.put("climbing", player.isHoldingOntoLadder());
+            out.put("sleeping", player.isSleeping());
+            out.put("onGround", player.isOnGround());
+            out.put("onFire", player.isOnFire());
+            out.put("inWater", player.isSubmergedInWater());
+            out.put("inLava", player.isInLava());
+
+            // Position
+            out.put("x", player.getX());
+            out.put("y", player.getY());
+            out.put("z", player.getZ());
+            out.put("pitch", player.getPitch());
+            out.put("yaw", player.getYaw());
+            MinecraftServer server = player.getServer();
+            if (server != null) {
+                for (RegistryKey<World> worldRegistryKey : server.getWorldRegistryKeys()) {
+                    if (Objects.equals(server.getWorld(worldRegistryKey), player.getWorld())) {
+                        // If a player reports an issue about the 'world' key not existing, it's upstream.
+                        out.put("world", worldRegistryKey.getValue().toString());
+                    }
+                }
             }
             return out;
         }
@@ -128,11 +186,6 @@ public class EntangledPeripheral extends PlayerPeripheral {
         @LuaFunction( mainThread = true )
         public final Map<Integer, Map<String, ?>> list() {
             return InventoryMethods.list(inventory);
-        }
-
-        @LuaFunction(mainThread = true)
-        public final String name() {
-            return InventoryMethods.name(inventory);
         }
 
         @LuaFunction( mainThread = true )

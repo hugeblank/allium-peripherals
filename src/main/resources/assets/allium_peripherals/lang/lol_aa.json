@@ -1,5 +1,7 @@
 {
   "block.allium_peripherals.chat_modem": "Msg Gttr",
-  "block.allium_peripherals.chat_modem_creative": "OwO Gttr",
-  "itemGroup.allium_peripherals.main": "AlliUwUm Peripherals"
+  "block.allium_peripherals.chat_modem_creative": "OwO Msg Gttr",
+  "block.allium_peripherals.entangled_modem": "Intangoweed Gttr",
+  "block.allium_peripherals.entangled_modem_creative": "OwO Intangoweed Gttr",
+  "itemGroup.allium_peripherals.main": "AlliUwUm Purripherals"
 }

@@ -7,11 +7,12 @@ import dev.hugeblank.util.InventoryHelpers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
+import net.minecraft.world.World;
 
 public abstract class PlayerPeripheral extends BasePeripheral {
 
     protected PlayerEntity player;
-    public GameProfile profile;
+    protected GameProfile profile;
 
     public PlayerPeripheral() {
         super();
@@ -28,7 +29,7 @@ public abstract class PlayerPeripheral extends BasePeripheral {
     public boolean bind(PlayerEntity player) {
         // Boolean return determines whether the block stay paired or not after the interaction
         if (!isBound()) {
-            player.sendMessage(new LiteralText("Bound modem to " + player.getName().asString()), true);
+            player.sendMessage(new LiteralText("Bound modem to " + player.getName().getString()), true);
             this.profile = player.getGameProfile();
             this.player = player;
             return true;
@@ -43,28 +44,32 @@ public abstract class PlayerPeripheral extends BasePeripheral {
         }
     }
 
-    public boolean bind(ServerWorld world, GameProfile profile) {
+    public boolean bind(GameProfile profile) {
         if (!isBound()) {
             this.profile = profile;
-            this.player = InventoryHelpers.getPlayer(world, profile);
+            player = null; //
             return true;
         } else {
             this.profile = null;
-            this.player = null;
+            player = null;
             return false;
         }
     }
 
+    public void onWorld(World world) {
+        if (!world.isClient() && profile != null) player = InventoryHelpers.getPlayer((ServerWorld)world, profile);
+    }
+
     public void unbind() {
-        this.profile = null;
-        this.player = null;
+        profile = null;
+        player = null;
     }
 
     boolean matches(PlayerEntity player) {
-        return player.equals(this.player);
+        return player.equals(player);
     }
 
     public boolean isBound() {
-        return profile != null;
+        return profile != null && player != null;
     }
 }

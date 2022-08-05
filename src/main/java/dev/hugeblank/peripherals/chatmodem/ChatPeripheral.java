@@ -7,6 +7,7 @@ import dev.hugeblank.api.player.PlayerPeripheral;
 import dev.hugeblank.util.LuaPattern;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -55,19 +56,20 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
     public boolean isOpen() { return open;}
 
     private void setOpen( boolean state) {
-        if(state && !catcher.contains(this)) {
-            catcher.add(this);
+        if(state && !CATCHERS.contains(this)) {
+            CATCHERS.add(this);
         } else if (!state){
-            catcher.remove(this);
+            CATCHERS.remove(this);
         }
-        this.open = state;
-        entity.markDirty();
+        open = state;
+        //entity.markDirty();
     }
 
     public boolean handleChatEvents(String message, ServerPlayerEntity player) {
         boolean out = false;
+        if (!(player.getUuid().equals(this.player.getUuid()) || this.creative)) return false;
         String username = player.getEntityName();
-        String id = player.getUuid().toString();
+        String id = player.getUuidAsString();
         String[] captures = (String[]) getCaptures();
         for (IComputerAccess computer : getComputers()) {
             computer.queueEvent("chat_message", username, message, id);
@@ -83,21 +85,14 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
 
     public void capture(String capture) {
         synchronized (captures) {
-            boolean exists = false;
-            for (String s : captures) {
-                if (s.equals(capture)) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (!exists) {
+            if (!captures.contains(capture)) {
                 captures.add(capture);
+                setOpen(true);
             }
         }
-        setOpen(true);
     }
 
-    public Object[] getCaptures() {
+    public Object getCaptures() {
         synchronized (captures) {
             return captures.toArray();
         }
@@ -107,26 +102,31 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
         boolean out = false;
         synchronized (captures) {
             if (capture == null) {
-                for (int i = 0; i < captures.size(); i++) {
-                    captures.remove(i);
-                }
+                captures.clear();
                 out = true;
             } else {
-                for (int i = 0; i < captures.size(); i++) {
-                    if (capture.equals(captures.get(i))) {
-                        captures.remove(i);
-                    }
+                int id = captures.indexOf(capture);
+                if (id > -1) {
+                    captures.remove(id);
                     out = true;
                 }
             }
-            if (captures.isEmpty()) catcher.remove(this);
+            if (captures.isEmpty()) {
+                CATCHERS.remove(this);
+                setOpen(false);
+            }
             return out;
         }
     }
 
     public void say(String message) {
-        if (player != null) {
-            player.sendMessage(new LiteralText(message), false);
+        World world = entity.getWorld();
+        if ( world != null && !world.isClient()) {
+            //noinspection ConstantConditions
+            ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(profile.getId());
+            if (player != null) {
+                player.sendMessage(new LiteralText(message), false);
+            }
         }
     }
 
@@ -137,6 +137,9 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
 
     @Override
     public synchronized void detach(@Nonnull IComputerAccess computer) {
-        uncapture(null);
+        super.detach(computer);
+        synchronized (computers) {
+            if (computers.isEmpty()) uncapture(null);
+        }
     }
 }

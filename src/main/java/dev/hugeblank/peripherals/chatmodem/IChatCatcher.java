@@ -9,7 +9,7 @@ import java.util.Set;
 public interface IChatCatcher {
 
     int CHAT_MODEM_MAX_RANGE = 128;
-    Set<ChatModemState> CATCHERS = new HashSet<>();
+    Set<ChatPeripheral> CATCHERS = new HashSet<>();
 
     boolean handleChatEvents(String message, ServerPlayerEntity player);
 }

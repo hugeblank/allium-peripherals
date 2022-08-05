@@ -27,8 +27,7 @@ public abstract class PlayerModemBlock extends BaseModemBlock {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hitResult) {
         if (hand == Hand.MAIN_HAND && !world.isClient) {
             BlockEntity be = world.getBlockEntity(pos);
-            if (be instanceof PlayerModemBlockEntity) {
-                PlayerModemBlockEntity entity = (PlayerModemBlockEntity) be;
+            if (be instanceof PlayerModemBlockEntity<?> entity) {
                 boolean result = entity.onBlockInteraction(player);
                 world.setBlockState(pos, state.with(PAIRED, result));
                 return ActionResult.SUCCESS;

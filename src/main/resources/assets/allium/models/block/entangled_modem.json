@@ -1,7 +1,0 @@
-{
-    "parent": "allium:block/modem",
-    "textures": {
-        "front": "allium:block/entangled_modem_face",
-        "back": "computercraft:block/modem_back"
-    }
-}

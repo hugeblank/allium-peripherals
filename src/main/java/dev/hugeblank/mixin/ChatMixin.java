@@ -1,7 +1,7 @@
 package dev.hugeblank.mixin;
 
 import dev.hugeblank.Allium;
-import dev.hugeblank.peripherals.chatmodem.ChatModemState;
+import dev.hugeblank.peripherals.chatmodem.ChatPeripheral;
 import dev.hugeblank.peripherals.chatmodem.IChatCatcher;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -24,12 +24,10 @@ public abstract class ChatMixin {
         boolean cancel = false;
         if (!player.getEntityWorld().isClient) {
             Allium.debug( "Catchers: " + IChatCatcher.CATCHERS);
-            for (ChatModemState modem : IChatCatcher.CATCHERS) {
-                if (player.getUuid().equals(modem.getBound().uuid()) || modem.creative) {
-                    boolean c = modem.handleChatEvents(packet.getChatMessage(), player);
-                    if (c) cancel = true;
-                    Allium.debug("World: " + (player.getEntityWorld().isClient() ? "client" : "server") + ", cancelled: " + (cancel ? "yes" : "no"));
-                }
+            for (ChatPeripheral modem : IChatCatcher.CATCHERS) {
+                boolean c = modem.handleChatEvents(packet.getChatMessage(), player);
+                if (c) cancel = true;
+                Allium.debug("World: " + (player.getEntityWorld().isClient() ? "client" : "server") + ", cancelled: " + (cancel ? "yes" : "no"));
             }
             if (cancel) ci.cancel();
         }

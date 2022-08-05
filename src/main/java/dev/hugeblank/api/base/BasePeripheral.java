@@ -14,25 +14,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class BasePeripheral implements IDynamicPeripheral {
+    // Note to self - Don't try merging this with BaseModemBlockEntity.
+    // BlockEntity.getType and IPeripheral.getType collide.
 
-    protected Set<IComputerAccess> computers;
-    protected BaseModemBlockEntity entity;
-    protected ArrayList<Method> methods;
-    protected ArrayList<String> names;
+    protected final Set<IComputerAccess> computers = new HashSet<>();
+    protected final ArrayList<Method> methods = new ArrayList<>();
+    protected final ArrayList<String> names = new ArrayList<>();
+    protected BaseModemBlockEntity<?> entity;
 
-    public BasePeripheral() {
-        computers = new HashSet<>();
-        methods = new ArrayList<>();
-        names = new ArrayList<>();
-        setComputers(computers);
-    }
+    public BasePeripheral() {}
 
-    public void setBlockEntity(BaseModemBlockEntity entity) {
+    public void setBlockEntity(BaseModemBlockEntity<?> entity) {
         this.entity = entity;
-    }
-
-    public void setComputers(Set<IComputerAccess> computers) {
-        this.computers = computers;
     }
 
     public Set<IComputerAccess> getComputers() {
@@ -60,16 +53,11 @@ public abstract class BasePeripheral implements IDynamicPeripheral {
 
     @Override
     public String @NotNull [] getMethodNames() {
-        String[] out = new String[names.size()];
-        int i = 0;
-        for (String name : names) {
-            out[i++] = name;
-        }
-        return out;
+        return names.toArray(new String[0]);
     }
 
     @Override
-    public MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
+    public @NotNull MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
         return methods.get(method).run(computer, context, arguments);
     }
 }

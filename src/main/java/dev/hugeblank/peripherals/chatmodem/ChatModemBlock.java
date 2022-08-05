@@ -5,46 +5,35 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public class ChatModemBlock extends PlayerModemBlock implements BlockEntityProvider {
-    private final boolean creative;
     public static final BooleanProperty ON = BooleanProperty.of( "on" );
 
-    public ChatModemBlock(Settings settings, boolean creative) {
+    public ChatModemBlock(Settings settings) {
         super(settings);
-        setDefaultState( this.getDefaultState()
-                .with( ON, false )
-        );
-        this.creative = creative;
+        setDefaultState( this.getDefaultState().with( ON, false ));
     }
 
+    @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockView view) {
-        BlockEntityType<ChatModemBlockEntity> use;
-        if (this.creative) {
-            use = ChatModemBlockEntity.TYPE_CREATIVE;
-        } else {
-            use = ChatModemBlockEntity.TYPE;
-        }
-        return new ChatModemBlockEntity(use, this.creative);
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new ChatModemBlockEntity(ChatModemBlockEntity.TYPE, pos, state);
     }
 
     @Override
     @Deprecated
-    public void neighborUpdate(BlockState blockState_1, World world_1, BlockPos blockPos_1, Block block_1, BlockPos blockPos_2, boolean boolean_1) {
-        super.neighborUpdate(blockState_1, world_1, blockPos_1, block_1, blockPos_2, boolean_1);
-        BlockEntity be = world_1.getBlockEntity(blockPos_1);
-        if (be instanceof ChatModemBlockEntity) {
-            ChatModemBlockEntity chatmodem = (ChatModemBlockEntity) be;
-            chatmodem.markDirty();
+    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+        super.neighborUpdate(state, world, pos, block, fromPos, notify);
+        BlockEntity be = world.getBlockEntity(pos);
+        if (be instanceof ChatModemBlockEntity modem) {
+            modem.markDirty();
         }
     }
 

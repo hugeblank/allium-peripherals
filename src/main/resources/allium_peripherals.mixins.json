@@ -3,7 +3,9 @@
   "package": "dev.hugeblank.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ChatMixin"
+    "ChatMixin",
+    "PlayerManagerSaveHandlerAccessor",
+    "ServerPlayerEntityMixin"
   ],
   "client": [
   ],
