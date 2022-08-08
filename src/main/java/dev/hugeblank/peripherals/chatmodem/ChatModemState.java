@@ -7,6 +7,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -42,7 +43,8 @@ public class ChatModemState implements IChatCatcher {
     public synchronized void setBound(PlayerInfo info) {
         this.playerInfo = info;
     }
-    public PlayerInfo getBound() {
+
+    public @Nullable PlayerInfo getBound() {
         return playerInfo;
     }
 

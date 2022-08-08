@@ -11,12 +11,10 @@ import dev.hugeblank.util.PlayerInfo;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.LiteralText;
 import org.jetbrains.annotations.NotNull;
-import org.squiddev.cobalt.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
-import java.util.UUID;
 
 public abstract class ChatPeripheral implements IDynamicPeripheral {
 
@@ -53,7 +51,7 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
         }
     }
 
-    public PlayerInfo getBoundPlayer() {
+    public @Nullable PlayerInfo getBoundPlayer() {
         return modem.getBound();
     }
 
@@ -109,6 +107,7 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
             case 4:
                 //getBoundPlayer
                 PlayerInfo info = getBoundPlayer();
+                if (info == null) return MethodResult.of();
                 return MethodResult.of(info.playerName(), info.uuid().toString());
             default:
                 return MethodResult.of();
