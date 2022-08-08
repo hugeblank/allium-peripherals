@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "allium",
+  "id": "allium_peripherals",
   "version": "${version}",
 
   "name": "Allium Peripherals",
