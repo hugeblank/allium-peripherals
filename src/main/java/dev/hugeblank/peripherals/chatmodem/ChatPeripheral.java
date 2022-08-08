@@ -51,7 +51,7 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
         }
     }
 
-    public PlayerInfo getBoundPlayer() {
+    public @Nullable PlayerInfo getBoundPlayer() {
         return modem.getBound();
     }
 
@@ -107,6 +107,7 @@ public abstract class ChatPeripheral implements IDynamicPeripheral {
             case 4:
                 //getBoundPlayer
                 PlayerInfo info = getBoundPlayer();
+                if (info == null) return MethodResult.of();
                 return MethodResult.of(info.playerName(), info.uuid().toString());
             default:
                 return MethodResult.of();
