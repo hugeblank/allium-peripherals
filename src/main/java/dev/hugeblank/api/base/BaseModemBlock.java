@@ -2,12 +2,10 @@ package dev.hugeblank.api.base;
 
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.Waterloggable;
+import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
@@ -15,15 +13,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Random;
 
 import static net.minecraft.state.property.Properties.WATERLOGGED;
 
-public class BaseModemBlock extends Block implements Waterloggable {
+public abstract class BaseModemBlock extends BlockWithEntity implements Waterloggable {
     public static final DirectionProperty FACING = Properties.FACING;
 
     public BaseModemBlock(Settings settings) {
@@ -37,6 +36,13 @@ public class BaseModemBlock extends Block implements Waterloggable {
     protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, WATERLOGGED );
+    }
+
+    @Override
+    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+         if (world.getBlockEntity(pos) instanceof BaseModemBlockEntity<?> be) {
+             be.onScheduledTick(state, world, pos, random);
+         }
     }
 
     @Nonnull
@@ -57,8 +63,8 @@ public class BaseModemBlock extends Block implements Waterloggable {
 
     @Nonnull
     @Deprecated
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction side, BlockState otherState, World world, BlockPos pos, BlockPos otherPos )
-    {
+    @Override
+    public BlockState getStateForNeighborUpdate(@Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull WorldAccess world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos ) {
         WaterloggableHelpers.updateShape( state, world, pos );
         return side == state.get( FACING ) && !state.canPlaceAt( world, pos )
                 ? state.getFluidState().getBlockState()
@@ -67,12 +73,9 @@ public class BaseModemBlock extends Block implements Waterloggable {
 
     @Override
     @Deprecated
-    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos )
-    {
+    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos ) {
         Direction facing = state.get( FACING );
-        BlockPos offsetPos = pos.offset( facing );
-        BlockState offsetState = world.getBlockState( offsetPos );
-        return Block.isFaceFullSquare( offsetState.getCollisionShape( world, offsetPos ), facing.getOpposite() );
+        return sideCoversSmallSquare(world, pos.offset(facing), facing.getOpposite() );
     }
 
     @Nullable
@@ -83,4 +86,11 @@ public class BaseModemBlock extends Block implements Waterloggable {
                 .with( FACING, placement.getSide().getOpposite() )
                 .with( WATERLOGGED, WaterloggableHelpers.getFluidStateForPlacement( placement ) );
     }
+
+    @Override
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+
 }

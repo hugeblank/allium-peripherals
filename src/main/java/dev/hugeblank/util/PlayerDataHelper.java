@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-public class InventoryHelpers {
+public class PlayerDataHelper {
     public static boolean MIXIN_CANCEL_MOVETOSPAWN = false;
 
     private static final HashMap<UUID, ServerPlayerEntity> playerCache = new HashMap<>();

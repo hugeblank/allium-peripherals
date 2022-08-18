@@ -29,17 +29,22 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
                 say(args.getString(0));
                 return MethodResult.of(true);
             });
+        } else {
+            removeMethod("getBoundPlayer");
         }
         addMethod("capture", (computer, context, args) -> {
             String capture = args.getString(0);
-            capture(capture);
-            return MethodResult.of();
+            return MethodResult.of(capture(capture));
         });
         addMethod("uncapture",
-                (computer, context, args) -> MethodResult.of(uncapture(args.optString(0, null)))
+                (computer, context, args) -> {
+            boolean out = uncapture(args.optString(0, null));
+            entity.markDirty();
+            return MethodResult.of(out);
+        }
         );
         addMethod("getCaptures",
-                (computer, context, args) -> MethodResult.of(getCaptures())
+                (computer, context, args) -> MethodResult.of((Object) getCaptures())
         );
     }
 
@@ -49,28 +54,28 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
         return "chat_modem";
     }
 
-    public void destroy() {
-        uncapture(null);
-    }
-
     public boolean isOpen() { return open;}
 
+    public boolean isCreative() { return creative; }
+
     private void setOpen( boolean state) {
-        if(state && !CATCHERS.contains(this)) {
+        if (state == open) return;
+        if(state) {
             CATCHERS.add(this);
-        } else if (!state){
+        } else {
+            captures.clear();
             CATCHERS.remove(this);
         }
         open = state;
-        //entity.markDirty();
+        scheduleTick();
     }
 
     public boolean handleChatEvents(String message, ServerPlayerEntity player) {
         boolean out = false;
-        if (!(player.getUuid().equals(this.player.getUuid()) || this.creative)) return false;
+        if ( !( this.creative || isBound() && player.getUuid().equals( getPlayer().getUuid() ) ) ) return false;
         String username = player.getEntityName();
         String id = player.getUuidAsString();
-        String[] captures = (String[]) getCaptures();
+        String[] captures = getCaptures();
         for (IComputerAccess computer : getComputers()) {
             computer.queueEvent("chat_message", username, message, id);
             for (String capture : captures) {
@@ -83,18 +88,21 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
         return out;
     }
 
-    public void capture(String capture) {
+    public boolean capture(String capture) {
+        if (!isBound() && !creative) return false;
         synchronized (captures) {
             if (!captures.contains(capture)) {
                 captures.add(capture);
                 setOpen(true);
+                entity.markDirty();
             }
         }
+        return true;
     }
 
-    public Object getCaptures() {
+    public String[] getCaptures() {
         synchronized (captures) {
-            return captures.toArray();
+            return captures.toArray(new String[0]);
         }
     }
 
@@ -102,7 +110,7 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
         boolean out = false;
         synchronized (captures) {
             if (capture == null) {
-                captures.clear();
+                setOpen(false);
                 out = true;
             } else {
                 int id = captures.indexOf(capture);
@@ -110,11 +118,9 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
                     captures.remove(id);
                     out = true;
                 }
+                if (captures.isEmpty()) setOpen(false);
             }
-            if (captures.isEmpty()) {
-                CATCHERS.remove(this);
-                setOpen(false);
-            }
+            scheduleTick();
             return out;
         }
     }
@@ -136,10 +142,15 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
     }
 
     @Override
+    public synchronized void attach(@NotNull IComputerAccess computer) {
+        super.attach(computer);
+    }
+
+    @Override
     public synchronized void detach(@Nonnull IComputerAccess computer) {
         super.detach(computer);
         synchronized (computers) {
-            if (computers.isEmpty()) uncapture(null);
+            if (computers.isEmpty()) setOpen(false);
         }
     }
 }

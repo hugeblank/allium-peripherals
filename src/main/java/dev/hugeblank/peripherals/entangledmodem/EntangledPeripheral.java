@@ -7,13 +7,12 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dev.hugeblank.api.player.PlayerPeripheral;
-import dev.hugeblank.util.InventoryHelpers;
+import dev.hugeblank.util.PlayerDataHelper;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -33,10 +32,7 @@ public class EntangledPeripheral extends PlayerPeripheral {
         addMethod("getInventory", (computer, context, args) -> MethodResult.of(getInventory(computer)));
         addMethod("getEnderInventory", (computer, context, args) -> MethodResult.of(getEnderInventory(computer)));
         addMethod("getStatusEffects", (computer, context, args) -> MethodResult.of(getStatusEffects()));
-    }
-
-    public ServerPlayerEntity getPlayer() {
-        return InventoryHelpers.getPlayer((ServerWorld) entity.getWorld(), profile);
+        addMethod("getAttributes", (computer, context, args) -> MethodResult.of(getAttributes()));
     }
 
     public InventoryPeripheral getInventory(IComputerAccess computer) {
@@ -73,7 +69,7 @@ public class EntangledPeripheral extends PlayerPeripheral {
 
     public ArrayList<Map<String, Object>> getStatusEffects() {
         ArrayList<Map<String, Object>> out = new ArrayList<>();
-        if (isBound() && InventoryHelpers.userOnline(Objects.requireNonNull(entity.getWorld()), profile)) {
+        if (isBound() && PlayerDataHelper.userOnline(Objects.requireNonNull(entity.getWorld()), profile)) {
             ServerPlayerEntity player = Objects.requireNonNull(entity.getWorld().getServer()).getPlayerManager().getPlayer(profile.getId());
             Collection<StatusEffectInstance> effects = player.getStatusEffects();
             for (StatusEffectInstance effect : effects) {
@@ -167,14 +163,14 @@ public class EntangledPeripheral extends PlayerPeripheral {
         @LuaFunction(mainThread = true)
         public final int pullItems( String fromName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot ) throws LuaException {
             int out = InventoryMethods.pullItems(inventory, computer, fromName, fromSlot, limit, toSlot);
-            InventoryHelpers.savePlayerInventory(player);
+            PlayerDataHelper.savePlayerInventory(player);
             return out;
         }
 
         @LuaFunction(mainThread = true)
         public final int pushItems( String toName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot) throws LuaException {
             int out = InventoryMethods.pushItems(inventory, computer, toName, fromSlot, limit, toSlot);
-            InventoryHelpers.savePlayerInventory(player);
+            PlayerDataHelper.savePlayerInventory(player);
             return out;
         }
 

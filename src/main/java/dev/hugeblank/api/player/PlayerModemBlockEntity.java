@@ -7,8 +7,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+
+import java.util.Random;
 
 public abstract class PlayerModemBlockEntity<T extends PlayerPeripheral> extends BaseModemBlockEntity<T> implements IPeripheralTile {
 
@@ -47,21 +49,13 @@ public abstract class PlayerModemBlockEntity<T extends PlayerPeripheral> extends
     }
 
     @Override
-    public void setWorld(World world) {
-        super.setWorld(world);
-        peripheral.onWorld(world);
-    }
-
-    @Override
-    public void markDirty()
-    {
-        super.markDirty();
-        if( world != null )
+    public void onScheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        // Parameter values are passed in from scheduledTick, which as far as I know is non-null
+        if(!world.isClient())
         {
             boolean paired = peripheral.isBound();
-            BlockState state = getCachedState();
             if ( state.get( PlayerModemBlock.PAIRED ) != paired) {
-                getWorld().setBlockState(getPos(), state.with(PlayerModemBlock.PAIRED, paired));
+                world.setBlockState(pos, state.with(PlayerModemBlock.PAIRED, paired));
             }
         }
     }

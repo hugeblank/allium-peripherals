@@ -1,6 +1,6 @@
 package dev.hugeblank.mixin;
 
-import dev.hugeblank.util.InventoryHelpers;
+import dev.hugeblank.util.PlayerDataHelper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +15,7 @@ public class ServerPlayerEntityMixin {
     @Inject(at = @At("HEAD"), method = "moveToSpawn(Lnet/minecraft/server/world/ServerWorld;)V", cancellable = true)
     private void blockMove(ServerWorld world, CallbackInfo ci) {
         // You seriously let this run on your hardware? Fr?
-        if (InventoryHelpers.MIXIN_CANCEL_MOVETOSPAWN) ci.cancel();
+        if (PlayerDataHelper.MIXIN_CANCEL_MOVETOSPAWN) ci.cancel();
     }
 }
 // This is technically a constructor mixin with how I'm using it. I hate it I hate it I hate it I hate it

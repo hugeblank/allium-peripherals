@@ -6,7 +6,10 @@ import dev.hugeblank.api.player.PlayerModemBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.Random;
 
 public class ChatModemBlockEntity extends PlayerModemBlockEntity<ChatPeripheral> implements IPeripheralTile {
     public static BlockEntityType<ChatModemBlockEntity> TYPE = FabricBlockEntityTypeBuilder
@@ -20,23 +23,16 @@ public class ChatModemBlockEntity extends PlayerModemBlockEntity<ChatPeripheral>
         super( type, pos, state, new ChatPeripheral(!state.getBlock().equals(Allium.Blocks.CHAT_MODEM)) );
     }
 
-    public void destroy()
-    {
-        super.destroy();
-        peripheral.destroy();
-    }
-
     @Override
-    public void markDirty()
+    public void onScheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random)
     {
-        super.markDirty();
-        if( world != null )
+        super.onScheduledTick(state, world, pos, random);
+        if(!world.isClient())
         {
             boolean on = peripheral.isOpen();
-            BlockState state = getCachedState();
             if( state.get( ChatModemBlock.ON ) != on )
             {
-                getWorld().setBlockState( getPos(), state.with( ChatModemBlock.ON, on ) );
+                world.setBlockState( getPos(), state.with( ChatModemBlock.ON, on ) );
             }
         }
     }
@@ -44,8 +40,7 @@ public class ChatModemBlockEntity extends PlayerModemBlockEntity<ChatPeripheral>
     @Override
     public void markRemoved()
     {
+        peripheral.uncapture(null);
         super.markRemoved();
-        if (world == null) return;
-        world.createAndScheduleBlockTick( getPos(), getCachedState().getBlock(), 0 );
     }
 }

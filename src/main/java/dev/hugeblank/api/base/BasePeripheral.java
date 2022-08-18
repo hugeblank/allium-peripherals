@@ -9,16 +9,14 @@ import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public abstract class BasePeripheral implements IDynamicPeripheral {
     // Note to self - Don't try merging this with BaseModemBlockEntity.
     // BlockEntity.getType and IPeripheral.getType collide.
 
     protected final Set<IComputerAccess> computers = new HashSet<>();
-    protected final ArrayList<Method> methods = new ArrayList<>();
+    protected final Map<String, Method> methods = new HashMap<>();
     protected final ArrayList<String> names = new ArrayList<>();
     protected BaseModemBlockEntity<?> entity;
 
@@ -26,6 +24,12 @@ public abstract class BasePeripheral implements IDynamicPeripheral {
 
     public void setBlockEntity(BaseModemBlockEntity<?> entity) {
         this.entity = entity;
+    }
+
+    public void scheduleTick() {
+        if (entity.hasWorld())
+            //noinspection ConstantConditions
+            entity.getWorld().createAndScheduleBlockTick( entity.getPos(), entity.getCachedState().getBlock(), 0 );
     }
 
     public Set<IComputerAccess> getComputers() {
@@ -47,8 +51,15 @@ public abstract class BasePeripheral implements IDynamicPeripheral {
     }
 
     public void addMethod(String name, Method method) {
-        methods.add(method);
+        methods.put(name, method);
         names.add(name);
+    }
+
+    public boolean removeMethod(String name) {
+        if (!names.contains(name)) return false;
+        methods.remove(name);
+        names.remove(name);
+        return true;
     }
 
     @Override
@@ -58,6 +69,6 @@ public abstract class BasePeripheral implements IDynamicPeripheral {
 
     @Override
     public @NotNull MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
-        return methods.get(method).run(computer, context, arguments);
+        return methods.get(names.get(method)).run(computer, context, arguments);
     }
 }

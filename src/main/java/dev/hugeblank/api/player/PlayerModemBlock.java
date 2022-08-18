@@ -3,7 +3,6 @@ package dev.hugeblank.api.player;
 import dev.hugeblank.api.base.BaseModemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -25,15 +24,14 @@ public abstract class PlayerModemBlock extends BaseModemBlock {
 
     @Deprecated
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hitResult) {
-        if (hand == Hand.MAIN_HAND && !world.isClient) {
-            BlockEntity be = world.getBlockEntity(pos);
-            if (be instanceof PlayerModemBlockEntity<?> entity) {
-                boolean result = entity.onBlockInteraction(player);
+        if (hand == Hand.MAIN_HAND && !world.isClient()) {
+            if (world.getBlockEntity(pos) instanceof PlayerModemBlockEntity<?> modem) {
+                boolean result = modem.onBlockInteraction(player);
                 world.setBlockState(pos, state.with(PAIRED, result));
                 return ActionResult.SUCCESS;
             }
         }
-        return ActionResult.FAIL;
+        return super.onUse(state, world, pos, player, hand, hitResult);
     }
 
     @Override

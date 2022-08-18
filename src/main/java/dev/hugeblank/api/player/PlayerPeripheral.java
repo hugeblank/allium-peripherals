@@ -3,15 +3,18 @@ package dev.hugeblank.api.player;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.MethodResult;
 import dev.hugeblank.api.base.BasePeripheral;
-import dev.hugeblank.util.InventoryHelpers;
+import dev.hugeblank.util.PlayerDataHelper;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
-import net.minecraft.world.World;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class PlayerPeripheral extends BasePeripheral {
 
-    protected PlayerEntity player;
+    protected final AtomicBoolean changed = new AtomicBoolean();
+
     protected GameProfile profile;
 
     public PlayerPeripheral() {
@@ -31,45 +34,37 @@ public abstract class PlayerPeripheral extends BasePeripheral {
         if (!isBound()) {
             player.sendMessage(new LiteralText("Bound modem to " + player.getName().getString()), true);
             this.profile = player.getGameProfile();
-            this.player = player;
+            if (!changed.getAndSet(true)) scheduleTick();
             return true;
         } else if (matches(player)) {
             player.sendMessage(new LiteralText("Unbound modem from player " + profile.getName()), true);
-            this.profile = null;
-            this.player = null;
+            profile = null;
+            if (!changed.getAndSet(true)) scheduleTick();
             return false;
         } else {
-            player.sendMessage(new LiteralText("Modem currently bound to player " + this.player.getGameProfile().getName()), true);
+            player.sendMessage(new LiteralText("Modem currently bound to player " + getPlayer().getGameProfile().getName()), true);
             return true;
         }
     }
 
-    public boolean bind(GameProfile profile) {
+    public void bind(GameProfile profile) {
         if (!isBound()) {
             this.profile = profile;
-            player = null; //
-            return true;
         } else {
             this.profile = null;
-            player = null;
-            return false;
         }
+        if (!changed.getAndSet(true)) scheduleTick();
     }
 
-    public void onWorld(World world) {
-        if (!world.isClient() && profile != null) player = InventoryHelpers.getPlayer((ServerWorld)world, profile);
-    }
-
-    public void unbind() {
-        profile = null;
-        player = null;
+    protected ServerPlayerEntity getPlayer() {
+        return PlayerDataHelper.getPlayer((ServerWorld) entity.getWorld(), profile);
     }
 
     boolean matches(PlayerEntity player) {
-        return player.equals(player);
+        return getPlayer().equals(player);
     }
 
     public boolean isBound() {
-        return profile != null && player != null;
+        return profile != null;
     }
 }
