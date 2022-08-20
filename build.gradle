@@ -7,7 +7,12 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version + '+' + project.minecraft_version
+// Following by example, using semantic versioning
+String v = 'v' + project.mod_version
+if ("0" != project.release_candidate) {
+	v += "-rc" + project.release_candidate
+}
+version = v + '+mc' + project.minecraft_version
 group = project.maven_group
 
 repositories {
@@ -37,8 +42,8 @@ dependencies {
 	implementation 'javax.vecmath:vecmath:1.5.2'
 
 	// CC: Restitched
-	modApi 'com.electronwill.night-config:core:3.6.3'
-	modApi 'com.electronwill.night-config:toml:3.6.3'
+	modApi 'com.electronwill.night-config:core:3.6.5'
+	modApi 'com.electronwill.night-config:toml:3.6.5'
 
 	modApi "com.github.cc-tweaked:cc-restitched:${project.cc_version}"
 
