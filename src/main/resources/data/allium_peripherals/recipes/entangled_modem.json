@@ -1,20 +1,26 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "ggg",
-    "gPg",
-    "ggg"
+    "GBG",
+    "GMG",
+    "GEG"
   ],
   "key": {
-    "g": {
+    "G": {
       "item": "minecraft:gold_ingot"
     },
-    "P": {
+    "E": {
       "item": "minecraft:ender_chest"
+    },
+    "M": {
+      "item": "computercraft:wired_modem"
+    },
+    "B": {
+      "item": "minecraft:beacon"
     }
   },
   "result": {
-    "item": "allium_peripherals:chat_modem",
+    "item": "allium_peripherals:entangled_modem",
     "count": 1
   }
 }

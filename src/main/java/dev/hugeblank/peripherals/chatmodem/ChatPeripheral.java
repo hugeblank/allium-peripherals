@@ -1,5 +1,6 @@
 package dev.hugeblank.peripherals.chatmodem;
 
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -18,6 +19,15 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
     public final boolean creative;
     private final ArrayList<String> captures = new ArrayList<>();
     private boolean open;
+    private static final String CHARSET;
+
+    static {
+        StringBuilder charset = new StringBuilder();
+        for(int i = 0; i < 256; i++) {
+            charset.append((char) i);
+        }
+        CHARSET = charset.toString();
+    }
 
     protected ChatPeripheral(boolean creative)
     {
@@ -34,7 +44,21 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
         }
         addMethod("capture", (computer, context, args) -> {
             String capture = args.getString(0);
-            return MethodResult.of(capture(capture));
+            if (!isBound() && !creative) return MethodResult.of(false);
+            synchronized (captures) {
+                if (!captures.contains(capture)) {
+                    try {
+                        LuaPattern.matches(CHARSET, capture);
+                    } catch (Throwable error) {
+                        return MethodResult.of(false, error.getMessage());
+                    }
+                    captures.add(capture);
+                    setOpen(true);
+                    entity.markDirty();
+                    return MethodResult.of(true);
+                }
+            }
+            return MethodResult.of(false);
         });
         addMethod("uncapture",
                 (computer, context, args) -> {
@@ -88,13 +112,18 @@ public class ChatPeripheral extends PlayerPeripheral implements IChatCatcher {
         return out;
     }
 
-    public boolean capture(String capture) {
+    public boolean capture(String capture) throws LuaException {
         if (!isBound() && !creative) return false;
         synchronized (captures) {
             if (!captures.contains(capture)) {
-                captures.add(capture);
-                setOpen(true);
-                entity.markDirty();
+                try {
+                    LuaPattern.matches(CHARSET, capture);
+                    captures.add(capture);
+                    setOpen(true);
+                    entity.markDirty();
+                } catch (Throwable error) {
+                    throw new LuaException(error.getMessage());
+                }
             }
         }
         return true;
