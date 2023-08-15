@@ -30,16 +30,7 @@ dependencies {
 	// CC: Restitched
 	modApi "com.github.cc-tweaked:cc-restitched:${project.cc_version}"
 
-	modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
-		exclude(group: "net.fabricmc.fabric-api")
-	}
-
-	modApi "com.electronwill.night-config:core:${project.night_config_version}"
-	modApi "com.electronwill.night-config:toml:${project.night_config_version}"
-
 	compileOnly "com.google.code.findbugs:jsr305:${project.jsr305_version}"
-	implementation "javax.vecmath:vecmath:${project.vecmath_version}"
-
 }
 
 processResources {
