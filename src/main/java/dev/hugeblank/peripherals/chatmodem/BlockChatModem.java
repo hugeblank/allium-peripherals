@@ -4,7 +4,6 @@ import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
@@ -20,13 +19,13 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.updateShape;
 import static net.minecraft.state.property.Properties.WATERLOGGED;
 
 public class BlockChatModem extends Block implements Waterloggable, BlockEntityProvider {
