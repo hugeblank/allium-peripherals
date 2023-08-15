@@ -21,6 +21,10 @@ public class Allium implements ModInitializer {
         AlliumRegistry.registerBlockEntities();
         AlliumRegistry.registerItems();
 
+        // TODO: mixin to ChatScreen$sendMessage, send custom packets, cancel it client-side
+        //       https://github.com/VazkiiMods/Botania/blob/1.20.x/Fabric/src/main/java/vazkii/botania/fabric/mixin/client/ChatScreenMixin.java
+        //       https://github.com/VazkiiMods/Botania/blob/1.20.x/Xplat/src/main/java/vazkii/botania/common/block/block_entity/corporea/CorporeaIndexBlockEntity.java#L380
+
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
             boolean cancel = false;
             Allium.debug( "Catchers: " + IChatCatcher.CATCHERS);
@@ -33,7 +37,9 @@ public class Allium implements ModInitializer {
                     Allium.debug("Modem " + modem + " is registered as a handler, but has no bound player");
                 }
             }
-            return !cancel;
+            if (cancel) Allium.debug("Message should be cancelled, but this is impossible >=1.19.1!");
+            //return !cancel;
+            return true;
         });
     }
 
