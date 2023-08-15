@@ -65,7 +65,7 @@ public class ChatModemState implements IChatCatcher {
             computer.queueEvent("chat_message", username, message, id);
             for (String capture : captures) {
                 if (LuaPattern.matches(message, capture)) {
-                    computer.queueEvent("chat_capture", message, capture, username, id);
+                    computer.queueEvent("chat_capture", username, message, id, capture);
                     out = true;
                 }
             }
