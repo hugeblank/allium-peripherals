@@ -1,12 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "ggg",
-    "gPg",
-    "ggg"
+    "###",
+    "#P#",
+    "###"
   ],
   "key": {
-    "g": {
+    "#": {
       "item": "minecraft:gold_ingot"
     },
     "P": {

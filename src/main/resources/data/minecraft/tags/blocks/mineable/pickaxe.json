@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "allium_peripherals:chat_modem"
+    "allium_peripherals:chat_modem",
+    "allium_peripherals:ranged_chat_modem"
   ]
 }

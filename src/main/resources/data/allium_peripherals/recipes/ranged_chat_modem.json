@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#P#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:stones"
+    },
+    "P": {
+      "item": "computercraft:speaker"
+    }
+  },
+  "result": {
+    "item": "allium_peripherals:ranged_chat_modem",
+    "count": 1
+  }
+}
