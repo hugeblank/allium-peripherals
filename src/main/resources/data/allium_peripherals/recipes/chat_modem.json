@@ -1,20 +1,23 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "ggg",
-    "gPg",
-    "ggg"
-  ],
-  "key": {
-    "g": {
-      "item": "minecraft:gold_ingot"
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "AWA",
+        "WSW",
+        "AWA"
+    ],
+    "key": {
+        "W": {
+            "tag": "minecraft:wool"
+        },
+        "A": {
+            "item": "minecraft:amethyst_shard"
+        },
+        "S": {
+            "item": "allium_peripherals:ranged_chat_modem"
+        }
     },
-    "P": {
-      "item": "computercraft:speaker"
+    "result":  {
+        "item": "allium_peripherals:chat_modem",
+        "count": 1
     }
-  },
-  "result": {
-    "item": "allium_peripherals:chat_modem",
-    "count": 1
-  }
 }

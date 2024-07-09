@@ -10,27 +10,36 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.NotNull;
 
 public final class AlliumRegistry {
     private static final ItemGroup ITEM_GROUP = FabricItemGroupBuilder
-            .create(new Identifier(Allium.MOD_ID, "main"))
+            .create(alliumId("main"))
             .icon(() -> new ItemStack(Blocks.ALLIUM))
             .build();
+
+    @NotNull
+    public static Identifier alliumId(String main) {
+        return new Identifier(Allium.MOD_ID, main);
+    }
 
     private static final Item.Settings SETTINGS = new Item.Settings().group(ITEM_GROUP);
 
     public static void registerBlocks() {
-        Registry.register(Registry.BLOCK, new Identifier(Allium.MOD_ID, "chat_modem"), Allium.Blocks.CHAT_MODEM);
-        Registry.register(Registry.BLOCK, new Identifier(Allium.MOD_ID, "chat_modem_creative"), Allium.Blocks.CHAT_MODEM_CREATIVE);
+        Registry.register(Registry.BLOCK, alliumId("chat_modem"), Allium.Blocks.CHAT_MODEM);
+        //TODO Parsing error loading recipe allium_peripherals:ranged_chat_modem
+        Registry.register(Registry.BLOCK, alliumId("ranged_chat_modem"), Allium.Blocks.RANGED_CHAT_MODEM);
+        Registry.register(Registry.BLOCK, alliumId("chat_modem_creative"), Allium.Blocks.CHAT_MODEM_CREATIVE);
     }
 
     public static void registerBlockEntities() {
         ChatModemBlockEntity.CHAT_MODEM_TYPE = Registry.register(
                 Registry.BLOCK_ENTITY_TYPE,
-                new Identifier(Allium.MOD_ID, "chat_modem"),
+            alliumId("chat_modem"),
                 AlliumRegistry.create(
                         ChatModemBlockEntity::new,
                         Allium.Blocks.CHAT_MODEM,
+                        Allium.Blocks.RANGED_CHAT_MODEM,
                         Allium.Blocks.CHAT_MODEM_CREATIVE
                 )
         );
@@ -47,6 +56,7 @@ public final class AlliumRegistry {
 
     public static void registerItems() {
         registerBlockItem(new BlockItem( Allium.Blocks.CHAT_MODEM, SETTINGS) );
+        registerBlockItem(new BlockItem( Allium.Blocks.RANGED_CHAT_MODEM, SETTINGS) );
         registerBlockItem(new BlockItem( Allium.Blocks.CHAT_MODEM_CREATIVE, SETTINGS) );
     }
 }
